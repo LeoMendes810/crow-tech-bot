@@ -1,6 +1,6 @@
 import streamlit as st
 
-# 1. Configuração da página
+# 1. Configuração da página (Deve ser a primeira linha)
 st.set_page_config(page_title="Crow Tech Elite", layout="wide")
 
 if 'logado' not in st.session_state:
@@ -9,87 +9,117 @@ if 'logado' not in st.session_state:
 # --- CSS PERSONALIZADO ---
 st.markdown("""
     <style>
-    /* Remover bordas de formulários e cabeçalhos */
-    [data-testid="stForm"] { border: none !important; padding: 0 !important; }
+    /* Remover cabeçalho padrão e barra branca */
     header { visibility: hidden; }
+    [data-testid="stHeader"] { background: rgba(0,0,0,0) !important; }
     
-    /* 6. Logo Marca d'água (Só o Corvo, maior e centralizado) */
+    /* 1. Remover o quadrado circulado (Borda do Form) */
+    [data-testid="stForm"] { border: none !important; padding: 0 !important; }
+
+    /* 6. Logo secundário Marca d'água (Só o corvo, maior e centralizado) */
     .stApp {
         background-color: #0e1117;
-        background-image: linear-gradient(rgba(14, 17, 23, 0.85), rgba(14, 17, 23, 0.85)), 
+        background-image: linear-gradient(rgba(14, 17, 23, 0.88), rgba(14, 17, 23, 0.88)), 
                           url("https://raw.githubusercontent.com/LeoMendes810/crow-tech-bot/master/assets/corvo_bg.png");
-        background-size: 50%; background-repeat: no-repeat; background-position: center;
+        background-size: 60%; background-repeat: no-repeat; background-position: center;
     }
 
-    /* Card de Login */
+    /* Posicionamento do container de login na esquerda */
     .login-container {
-        max-width: 400px;
-        margin-left: 10%; /* Ajuste para o PC */
+        max-width: 450px;
+        margin-left: 8%; 
         margin-top: 5%;
         text-align: left;
     }
 
-    /* 4. Botão Acessar (Menor, Sem Fundo, Estilo Link) */
+    /* 3. Slogan correto e estilizado */
+    .slogan { 
+        color: #8b949e; 
+        font-style: italic; 
+        font-size: 1.2rem; 
+        margin-top: -15px; 
+        margin-bottom: 40px; 
+        font-weight: 400;
+    }
+
+    /* Labels dos campos em branco puro */
+    label { color: #ffffff !important; font-weight: bold !important; font-size: 1rem !important; }
+
+    /* 4. Botão ACESSAR (Menor, sem fundo, estilo borda) */
     .stButton > button {
         background-color: transparent !important;
         color: #0ea5e9 !important;
         border: 1px solid #0ea5e9 !important;
-        padding: 5px 20px !important;
-        font-weight: bold !important;
-        width: auto !important;
+        border-radius: 5px !important;
+        padding: 5px 30px !important;
+        font-size: 0.9rem !important;
+        transition: 0.3s;
     }
     .stButton > button:hover {
         background-color: rgba(14, 165, 233, 0.1) !important;
-        color: white !important;
+        border-color: #ffffff !important;
+        color: #ffffff !important;
     }
 
-    /* Labels e Inputs */
-    label { color: white !important; font-weight: bold !important; }
-    div[data-baseweb="input"] { background-color: #161b22 !important; border: 1px solid #30363d !important; }
-    input { color: white !important; }
-    
-    /* 3. Slogan Correto */
-    .slogan { color: #8b949e; font-style: italic; font-size: 1.1rem; margin-top: -10px; margin-bottom: 30px; }
+    /* Estilo dos campos de texto */
+    div[data-baseweb="input"] { background-color: #161b22 !important; border: 1px solid #30363d !important; border-radius: 8px; }
+    input { color: #ffffff !important; }
+
+    /* Links de rodapé discretos */
+    .footer-links button {
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
+        color: #57606a !important;
+        text-decoration: none !important;
+        font-size: 0.85rem !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
 def mostrar_tela_login():
-    col1, col2 = st.columns([1, 1]) # Divide a tela para o logo ficar na esquerda
+    # Divisão para o conteúdo ficar na esquerda
+    col_content, col_empty = st.columns([1, 1.2])
     
-    with col1:
+    with col_content:
         st.markdown('<div class="login-container">', unsafe_allow_html=True)
         
         # 5. Logo Principal (Esquerda e Maior)
-        st.image("assets/logo.png", width=250)
+        st.image("https://raw.githubusercontent.com/LeoMendes810/crow-tech-bot/master/assets/logo.png", width=320)
         
-        # 3. Slogan sem ponto de interrogação
-        st.markdown('<p class="slogan">Seu estilo em jogo</p>', unsafe_allow_html=True)
+        # 3. Slogan corrigido
+        st.markdown('<p class="slogan">Inteligência em cada movimento</p>', unsafe_allow_html=True)
 
-        # Campos de Login (Sem o quadrado do Form)
-        usuario = st.text_input("USUÁRIO", key="user")
-        senha = st.text_input("SENHA", type="password", key="pass")
+        # 2. Removido a frase "Entrar" (Iniciando campos direto)
+        usuario = st.text_input("USUÁRIO", key="input_user")
+        senha = st.text_input("SENHA", type="password", key="input_pass")
         
-        # 4. Botão Menor e Sem Fundo
-        if st.button("ACESSAR"):
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # 4. Botão menor e customizado
+        if st.button("ENTRAR"):
             if usuario == "admin" and senha == "crow123":
                 st.session_state.logado = True
                 st.rerun()
             else:
-                st.error("Credenciais inválidas.")
+                st.error("Credenciais incorretas.")
 
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        # Links de Cadastro/Senha
+        # Links de apoio
+        st.markdown("<br><br>", unsafe_allow_html=True)
         c1, c2 = st.columns([1, 1])
         with c1:
-            if st.button("Criar conta", key="cad"): pass
+            if st.button("Criar conta", key="link_cad"): pass
         with c2:
-            if st.button("Perdi a senha", key="p_pass"): pass
+            if st.button("Esqueci a senha", key="link_pass"): pass
             
         st.markdown('</div>', unsafe_allow_html=True)
 
-# Lógica
+# Lógica de Navegação
 if not st.session_state.logado:
     mostrar_tela_login()
 else:
-    st.write("Logado!")
+    # Quando logar, ele limpa a tela e mostra o Dashboard
+    st.write("### Bem-vindo ao Dashboard Crow Tech")
+    if st.button("Sair"):
+        st.session_state.logado = False
+        st.rerun()
