@@ -1,87 +1,84 @@
 def tela_login():
-    # CSS específico para a Tela de Login (Alta visibilidade)
+    # CSS focado em entregar conteúdo e garantir contraste
     st.markdown("""
         <style>
-        /* Esconder tudo que for do Streamlit nesta tela */
-        header {visibility: hidden;}
+        /* 1. Limpeza do topo sem esconder o corpo (Evita tela branca) */
+        [data-testid="stHeader"] { background: rgba(0,0,0,0) !important; }
         footer {visibility: hidden;}
         
-        /* Centralizar o formulário na tela */
-        .main {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        /* 2. Fundo Escuro para toda a página */
+        .stApp { background-color: #0e1117 !important; }
 
+        /* 3. Centralização e Estilo do Card de Login */
         .login-card {
             background-color: #161b22;
-            padding: 2.5rem;
-            border-radius: 20px;
-            border: 1px solid #30363d;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            padding: 3rem;
+            border-radius: 15px;
+            border: 2px solid #30363d;
             text-align: center;
+            margin-top: 10%;
         }
 
-        /* Clarear os Labels dos campos */
+        /* 4. CONTRASTE: Títulos e Labels em Branco Puro */
+        h1, h2, h3, p, span { color: #ffffff !important; }
+        
         .stTextInput label {
-            color: #ffffff !important;
-            font-size: 1.1rem !important;
-            font-weight: bold !important;
-            margin-bottom: 10px;
+            color: #ffffff !important; /* Branco forte para os nomes Usuário/Senha */
+            font-size: 1.2rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase;
         }
 
-        /* Ajustar os botões de link */
-        .link-buttons {
-            margin-top: 15px;
-            display: flex;
-            justify-content: space-between;
+        /* 5. Ajuste dos inputs para não ficarem apagados */
+        div[data-baseweb="input"] {
+            background-color: #1c2128 !important;
+            border: 1px solid #0ea5e9 !important; /* Borda Ciano para destaque */
         }
         
-        /* Texto de boas vindas */
-        .welcome-text {
-            color: #8b949e;
-            margin-bottom: 2rem;
-            font-size: 1rem;
+        input { color: white !important; }
+
+        /* 6. Botão de Links (Cadastro/Senha) */
+        .stButton button {
+            background-color: transparent;
+            color: #0ea5e9 !important;
+            border: none;
+            text-decoration: underline;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # Layout da tela de Login
-    _, col_center, _ = st.columns([1, 1.2, 1])
+    # Organização Visual
+    _, col_login, _ = st.columns([1, 1.5, 1])
     
-    with col_center:
+    with col_login:
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
         
         # Logo da Crow Tech
-        st.image("https://raw.githubusercontent.com/LeoMendes810/crow-tech-bot/master/assets/logo.png", width=130)
+        st.image("https://raw.githubusercontent.com/LeoMendes810/crow-tech-bot/master/assets/logo.png", width=140)
         
-        st.markdown("<h1 style='color: white; margin-bottom: 5px;'>Entrar</h1>", unsafe_allow_html=True)
-        st.markdown("<p class='welcome-text'>Seu estilo em jogo. Entre com suas credenciais.</p>", unsafe_allow_html=True)
+        st.markdown("<h2 style='margin-bottom: 25px;'>ACESSO RESTRITO</h2>", unsafe_allow_html=True)
         
-        # Formulário de Login
-        with st.form("login_form", clear_on_submit=False):
-            usuario = st.text_input("USUÁRIO")
-            senha = st.text_input("SENHA", type="password")
+        with st.form("form_acesso"):
+            # Campos com Labels em negrito e branco
+            user = st.text_input("Usuário")
+            password = st.text_input("Senha", type="password")
             
-            # Botão de Acesso Estilizado
-            botao_entrar = st.form_submit_button("ACESSAR DASHBOARD", use_container_width=True)
-            
-            if botao_entrar:
-                if usuario == "admin" and senha == "crow123":
+            # Botão Principal
+            if st.form_submit_button("ENTRAR NO DASHBOARD", use_container_width=True):
+                if user == "admin" and password == "crow123":
                     st.session_state.logado = True
-                    st.success("Acesso autorizado! Carregando...")
                     st.rerun()
                 else:
-                    st.error("Usuário ou senha incorretos.")
-
-        # Links de Suporte (Fora do form para não dar conflito)
-        st.write("") 
-        c_cad, c_pass = st.columns(2)
-        with c_cad:
-            if st.button("Criar Conta", use_container_width=True, key="cad"):
-                st.toast("Redirecionando para cadastro...")
-        with c_pass:
-            if st.button("Esqueci Senha", use_container_width=True, key="pass"):
-                st.toast("Iniciando recuperação via E-mail...")
+                    st.error("Credenciais Inválidas")
+        
+        # Links de Apoio estilo "Instagram/Facebook"
+        st.markdown("<br>", unsafe_allow_html=True)
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("Criar Conta", key="btn_cad"):
+                st.info("Entre em contato com o suporte AXIO/Crow Tech.")
+        with c2:
+            if st.button("Esqueci a Senha", key="btn_pass"):
+                st.warning("Sistema de recuperação em manutenção.")
         
         st.markdown('</div>', unsafe_allow_html=True)
