@@ -1,84 +1,94 @@
-def tela_login():
-    # CSS focado em entregar conteúdo e garantir contraste
-    st.markdown("""
-        <style>
-        /* 1. Limpeza do topo sem esconder o corpo (Evita tela branca) */
-        [data-testid="stHeader"] { background: rgba(0,0,0,0) !important; }
-        footer {visibility: hidden;}
-        
-        /* 2. Fundo Escuro para toda a página */
-        .stApp { background-color: #0e1117 !important; }
+import streamlit as st
+import os
 
-        /* 3. Centralização e Estilo do Card de Login */
-        .login-card {
-            background-color: #161b22;
-            padding: 3rem;
-            border-radius: 15px;
-            border: 2px solid #30363d;
-            text-align: center;
-            margin-top: 10%;
-        }
+# 1. Configuração da página (DEVE ser a primeira linha)
+st.set_page_config(page_title="Crow Tech Elite", layout="wide")
 
-        /* 4. CONTRASTE: Títulos e Labels em Branco Puro */
-        h1, h2, h3, p, span { color: #ffffff !important; }
-        
-        .stTextInput label {
-            color: #ffffff !important; /* Branco forte para os nomes Usuário/Senha */
-            font-size: 1.2rem !important;
-            font-weight: 700 !important;
-            text-transform: uppercase;
-        }
+# 2. Inicialização do estado de login
+if 'logado' not in st.session_state:
+    st.session_state.logado = False
 
-        /* 5. Ajuste dos inputs para não ficarem apagados */
-        div[data-baseweb="input"] {
-            background-color: #1c2128 !important;
-            border: 1px solid #0ea5e9 !important; /* Borda Ciano para destaque */
-        }
-        
-        input { color: white !important; }
+# 3. CSS SEGURO (Sem ocultar o corpo da página)
+st.markdown("""
+    <style>
+    /* Fundo escuro e imagem de fundo */
+    .stApp {
+        background-color: #0e1117;
+        background-image: linear-gradient(rgba(14, 17, 23, 0.8), rgba(14, 17, 23, 0.8)), 
+                          url("https://raw.githubusercontent.com/LeoMendes810/crow-tech-bot/master/assets/logo.png");
+        background-size: 40%; background-repeat: no-repeat; background-position: center;
+    }
 
-        /* 6. Botão de Links (Cadastro/Senha) */
-        .stButton button {
-            background-color: transparent;
-            color: #0ea5e9 !important;
-            border: none;
-            text-decoration: underline;
-        }
-        </style>
-    """, unsafe_allow_html=True)
+    /* Card de Login Centralizado */
+    .login-box {
+        background-color: #161b22;
+        padding: 50px;
+        border-radius: 20px;
+        border: 1px solid #30363d;
+        text-align: center;
+        max-width: 500px;
+        margin: 100px auto; /* Centraliza verticalmente no PC */
+        box-shadow: 0px 4px 20px rgba(0,0,0,0.5);
+    }
 
-    # Organização Visual
-    _, col_login, _ = st.columns([1, 1.5, 1])
+    /* Labels Brancos e Fortes */
+    label { color: #ffffff !important; font-size: 1.2rem !important; font-weight: bold; }
     
-    with col_login:
-        st.markdown('<div class="login-card">', unsafe_allow_html=True)
+    /* Inputs Escuros com borda azul */
+    div[data-baseweb="input"] {
+        background-color: #0d1117 !important;
+        border: 1px solid #0ea5e9 !important;
+    }
+    input { color: white !important; }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- FUNÇÃO DA TELA INICIAL ---
+def mostrar_tela_login():
+    # Usamos colunas para centralizar o card no monitor
+    _, col_centro, _ = st.columns([1, 1.5, 1])
+    
+    with col_centro:
+        st.markdown('<div class="login-box">', unsafe_allow_html=True)
         
-        # Logo da Crow Tech
-        st.image("https://raw.githubusercontent.com/LeoMendes810/crow-tech-bot/master/assets/logo.png", width=140)
+        # Logo
+        st.image("https://raw.githubusercontent.com/LeoMendes810/crow-tech-bot/master/assets/logo.png", width=150)
         
-        st.markdown("<h2 style='margin-bottom: 25px;'>ACESSO RESTRITO</h2>", unsafe_allow_html=True)
-        
-        with st.form("form_acesso"):
-            # Campos com Labels em negrito e branco
-            user = st.text_input("Usuário")
-            password = st.text_input("Senha", type="password")
+        st.markdown("<h1 style='color: white;'>ENTRAR</h1>", unsafe_allow_html=True)
+        st.markdown("<p style='color: #8b949e;'>Seu estilo em jogo</p>", unsafe_allow_html=True)
+
+        # Formulário
+        with st.form("login_crow"):
+            usuario = st.text_input("USUÁRIO")
+            senha = st.text_input("SENHA", type="password")
             
-            # Botão Principal
-            if st.form_submit_button("ENTRAR NO DASHBOARD", use_container_width=True):
-                if user == "admin" and password == "crow123":
+            botao = st.form_submit_button("ACESSAR SISTEMA", use_container_width=True)
+            
+            if botao:
+                if usuario == "admin" and senha == "crow123":
                     st.session_state.logado = True
                     st.rerun()
                 else:
-                    st.error("Credenciais Inválidas")
-        
-        # Links de Apoio estilo "Instagram/Facebook"
+                    st.error("Credenciais inválidas.")
+
+        # Links estilo Rede Social
         st.markdown("<br>", unsafe_allow_html=True)
         c1, c2 = st.columns(2)
         with c1:
-            if st.button("Criar Conta", key="btn_cad"):
-                st.info("Entre em contato com o suporte AXIO/Crow Tech.")
+            if st.button("Criar conta", use_container_width=True):
+                st.info("Falar com suporte.")
         with c2:
-            if st.button("Esqueci a Senha", key="btn_pass"):
-                st.warning("Sistema de recuperação em manutenção.")
+            if st.button("Perdi a senha", use_container_width=True):
+                st.warning("Recuperação ativa.")
         
         st.markdown('</div>', unsafe_allow_html=True)
+
+# --- LÓGICA PRINCIPAL ---
+if not st.session_state.logado:
+    mostrar_tela_login()
+else:
+    st.write("# Dashboard Crow Tech")
+    st.write("Parabéns, você entrou! Agora podemos construir o resto aqui.")
+    if st.button("Sair"):
+        st.session_state.logado = False
+        st.rerun()
