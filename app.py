@@ -4,129 +4,137 @@ import plotly.graph_objects as go
 import streamlit.components.v1 as components
 import os
 
-# --- CONFIGURAÇÃO DA PÁGINA (ESCONDER MENU PADRÃO E FORÇAR DARK) ---
+# --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Crow Tech Elite", layout="wide", initial_sidebar_state="expanded")
 
-# --- CSS DEFINITIVO: CONTRASTE, EXTERMÍNIO DO BRANCO E TOPO LIMPO ---
+# --- CSS INTEGRADO: LOGO NO FUNDO, TÍTULOS E EXTERMÍNIO DO BRANCO ---
 st.markdown("""
     <style>
-    header {visibility: hidden;}
-    footer {visibility: hidden;}
-    .stApp { background-color: #0e1117; color: white; }
-    
-    /* Matar fundo branco de submenus, inputs e multiselect */
+    /* 1. Logo ao Fundo (Restaurado) */
+    .stApp {
+        background-color: #0e1117;
+        background-image: linear-gradient(rgba(14, 17, 23, 0.85), rgba(14, 17, 23, 0.85)), 
+                          url("https://raw.githubusercontent.com/LeoMendes810/crow-tech-bot/master/assets/logo.png");
+        background-attachment: fixed;
+        background-size: 35%; background-repeat: no-repeat; background-position: center;
+        color: white;
+    }
+
+    /* 2. Matar fundos brancos em submenus e inputs (Sidebar e Main) */
     div[data-baseweb="select"] > div, div[data-baseweb="input"] > div, .stMultiSelect div {
         background-color: #1c2128 !important;
         color: white !important;
         border: 1px solid #30363d !important;
     }
     
-    /* Estilização da Tela de Login */
-    .login-container {
+    /* 3. Títulos, Rótulos e Legendas Visíveis */
+    h1, h2, h3, p, span, label { color: white !important; }
+    .stMetric label { color: #8b949e !important; font-size: 1rem !important; }
+    
+    /* 4. Esconder apenas a barra superior 'Manage App' sem quebrar o layout */
+    header { background: rgba(0,0,0,0) !important; }
+    [data-testid="stHeader"] { background-color: rgba(0,0,0,0) !important; }
+
+    /* Login Container */
+    .login-box {
         background-color: #161b22;
         padding: 40px;
         border-radius: 15px;
         border: 1px solid #30363d;
-        text-align: center;
-        max-width: 450px;
         margin: auto;
+        max-width: 450px;
     }
-
-    /* Labels e Textos Claros */
-    label, p, span { color: #ffffff !important; font-weight: 500; }
-    .titulo-main { font-size: 3.5rem !important; font-weight: 800; color: white; line-height: 1; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- CONTROLE DE SESSÃO ---
+# --- CONTROLE DE ACESSO ---
 if 'logado' not in st.session_state:
     st.session_state.logado = False
 
-# --- 1. TELA DE LOGIN (ACRESCENTADA) ---
+# --- TELA DE LOGIN (ACRESCENTADA) ---
 def tela_login():
-    col1, col2, col3 = st.columns([1, 1.5, 1])
+    _, col2, _ = st.columns([1, 1.5, 1])
     with col2:
-        st.markdown('<div class="login-container">', unsafe_allow_html=True)
+        st.markdown('<div class="login-box">', unsafe_allow_html=True)
         st.image("https://raw.githubusercontent.com/LeoMendes810/crow-tech-bot/master/assets/logo.png", width=120)
-        st.markdown("<h2 style='color: #0ea5e9;'>Crow Tech Elite</h2>", unsafe_allow_html=True)
-        with st.form("login_form"):
-            user = st.text_input("Usuário")
-            password = st.text_input("Senha", type="password")
-            if st.form_submit_button("ACESSAR DASHBOARD", use_container_width=True):
-                if user == "admin" and password == "crow123":
+        st.markdown("<h2 style='text-align: center;'>Acesso Crow Tech</h2>", unsafe_allow_html=True)
+        with st.form("login"):
+            u = st.text_input("Usuário")
+            p = st.text_input("Senha", type="password")
+            if st.form_submit_button("ENTRAR NO SISTEMA", use_container_width=True):
+                if u == "admin" and p == "crow123":
                     st.session_state.logado = True
                     st.rerun()
-                else: st.error("Acesso Negado.")
-        
-        c_l1, c_l2 = st.columns(2)
-        with c_l1: st.button("Cadastrar", key="cad", use_container_width=True)
-        with c_l2: st.button("Recuperar Senha", key="rec", use_container_width=True)
+                else: st.error("Incorreto.")
         st.markdown('</div>', unsafe_allow_html=True)
 
-# --- 2. DASHBOARD (ESTRUTURA ORIGINAL RESTAURADA + ACRÉSCIMOS) ---
+# --- DASHBOARD COMPLETO (RESTAURADO) ---
 def dashboard():
-    # --- SIDEBAR ORIGINAL ---
+    # --- MENU LATERAL (RESTAURADO) ---
     with st.sidebar:
         st.image("https://raw.githubusercontent.com/LeoMendes810/crow-tech-bot/master/assets/logo.png", width=100)
-        st.markdown("### ⚡ COMANDO CENTRAL")
+        st.markdown("### 🖥️ PAINEL DE CONTROLE")
+        
         with st.expander("🔄 GESTÃO DE PARES", expanded=True):
-            lista_pares = ['SOL/USDT', 'BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'DOGE/USDT', 'LINK/USDT']
-            selecionados = st.multiselect("Pares Ativos:", lista_pares, default=['SOL/USDT', 'BTC/USDT', 'ETH/USDT', 'XRP/USDT'])
+            lista = ['SOL/USDT', 'BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'DOGE/USDT', 'LINK/USDT']
+            selecionados = st.multiselect("Selecione (Min. 4):", lista, default=['SOL/USDT', 'BTC/USDT', 'ETH/USDT', 'XRP/USDT'])
         
         with st.expander("💰 FINANCEIRO"):
-            st.metric("Saldo Atual", "$ 15.94")
-            st.button("Sincronizar Carteira", use_container_width=True)
-        
+            st.write("Saldo: $ 15.94")
+            st.button("Sacar Lucro", use_container_width=True)
+
         st.divider()
-        if st.button("LOGOUT (SAIR)"):
+        if st.button("SAIR (LOGOUT)"):
             st.session_state.logado = False
             st.rerun()
 
-    # --- CABEÇALHO ---
-    st.markdown("<h1 class='titulo-main'>CROW <span style='color:#0ea5e9;'>TECH</span></h1>", unsafe_allow_html=True)
-    st.markdown("<p style='font-style: italic; color: #8b949e;'>Seu estilo em jogo</p>", unsafe_allow_html=True)
+    # --- CORPO DO DASHBOARD ---
+    st.markdown("<h1>CROW <span style='color:#0ea5e9;'>TECH</span></h1>", unsafe_allow_html=True)
+    st.markdown("<p style='font-style: italic; margin-top: -20px;'>Seu estilo em jogo</p>", unsafe_allow_html=True)
 
-    # --- MÉTRICAS E GRÁFICO DE ROSCA (RESTAURADOS) ---
-    col_m1, col_m2, col_m3, col_m4 = st.columns([1,1,1,1.5])
-    with col_m1: st.metric("SALDO", "$ 15.94", delta="Real")
-    with col_m2: st.metric("LUCRO HOJE", "+1.20%", delta="0.80% Alvo")
-    with col_m3: st.metric("STATUS", "SNIPER ON", delta="C18.9.1.5")
+    # Métricas com Rótulos
+    c1, c2, c3, c4 = st.columns([1,1,1,1.5])
+    with c1: st.metric("SALDO", "$ 15.94", delta="Real")
+    with c2: st.metric("LUCRO HOJE", "+1.20%", delta="0.80% Alvo")
+    with c3: st.metric("STATUS", "SNIPER ON", delta="C18.9.1.5")
     
-    with col_m4:
-        # Gráfico de Rosca (Performance da Carteira)
-        fig = go.Figure(data=[go.Pie(labels=['Lucro', 'Banca', 'Em Ordem'], 
+    with c4:
+        # Gráfico de Rosca com Legendas (Restaurado)
+        fig = go.Figure(data=[go.Pie(labels=['Lucro', 'Banca', 'Ordem'], 
                              values=[1.2, 14.74, 0], hole=.6,
                              marker=dict(colors=['#0ea5e9', '#1c2128', '#30363d']))])
-        fig.update_layout(margin=dict(t=0, b=0, l=0, r=0), height=150, showlegend=False, paper_bgcolor='rgba(0,0,0,0)')
+        fig.update_layout(margin=dict(t=0, b=0, l=0, r=0), height=130, showlegend=True, 
+                          legend=dict(font=dict(color="white")), paper_bgcolor='rgba(0,0,0,0)')
         st.plotly_chart(fig, use_container_width=True)
 
     st.divider()
 
-    # --- BARRA DE GRÁFICOS EM TEMPO REAL (ACRESCENTADA) ---
-    st.subheader("📡 Terminal Gráfico")
-    tabs_pares = [p.replace("/", "") for p in selecionados]
-    escolha_abas = st.tabs(selecionados)
+    # --- TERMINAL GRÁFICO E RADAR ---
+    st.markdown("### 📡 Terminal de Operações")
+    escolha = st.tabs(selecionados)
 
-    for i, aba in enumerate(escolha_abas):
+    for i, aba in enumerate(escolha):
         with aba:
-            col_chart, col_radar = st.columns([2.5, 1])
-            with col_chart:
-                # Iframe TradingView
-                tv_url = f"https://s.tradingview.com/widgetembed/?symbol=BITGET%3A{tabs_pares[i]}&interval=5&theme=dark"
-                components.html(f'<iframe src="{tv_url}" width="100%" height="450" frameborder="0"></iframe>', height=450)
+            col_g, col_r = st.columns([2.5, 1.2])
+            par_limpo = selecionados[i].replace("/", "")
             
-            with col_radar:
-                # Radar de Ativos (Lista de Moedas que você pediu para manter)
-                st.markdown("**Radar Crow Sniper**")
-                df_radar = pd.DataFrame({
+            with col_g:
+                # Gráfico Real TradingView
+                tv = f"https://s.tradingview.com/widgetembed/?symbol=BITGET%3A{par_limpo}&interval=5&theme=dark"
+                components.html(f'<iframe src="{tv}" width="100%" height="450" frameborder="0"></iframe>', height=450)
+            
+            with col_r:
+                # Radar Sniper (A Lista de Moedas)
+                st.markdown(f"**Análise {selecionados[i]}**")
+                radar_df = pd.DataFrame({
                     "Ativo": selecionados,
-                    "RSI": [42.2, 50.2, 46.0, 67.1, 52.0, 48.0][:len(selecionados)],
-                    "Tendência": ["BAIXA", "BAIXA", "BAIXA", "ALTA", "ESTÁVEL", "BAIXA"][:len(selecionados)]
+                    "RSI": [42.2, 50.2, 46.0, 67.1, 48.5, 51.0][:len(selecionados)],
+                    "Trend": ["BAIXA", "BAIXA", "BAIXA", "ALTA", "BAIXA", "ALTA"][:len(selecionados)]
                 })
-                st.table(df_radar)
-                st.button(f"Ativar Sniper {selecionados[i]}", use_container_width=True)
+                st.table(radar_df)
+                st.button(f"Ativar Sniper {par_limpo}", use_container_width=True)
 
-# --- LÓGICA DE NAVEGAÇÃO ---
+# Navegação
 if not st.session_state.logado:
     tela_login()
 else:
