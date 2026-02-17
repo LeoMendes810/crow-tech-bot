@@ -15,54 +15,46 @@ def get_base64(bin_file):
 bg_base64 = get_base64('assets/corvo_bg.png')
 logo_base64 = get_base64('assets/logo.png')
 
-# --- CSS DEFINITIVO COM CORREÇÃO DE VISIBILIDADE ---
+# --- CSS PARA COR DA LETRA PRETA ---
 st.markdown(f"""
     <style>
-    /* Limpeza de interface */
     header, footer, .stDeployButton, [data-testid="stHeader"] {{ visibility: hidden !important; }}
     
-    /* Fundo Dark com o Corvo */
     .stApp {{
         background: #0b1016 url(data:image/png;base64,{bg_base64}) no-repeat center !important;
         background-size: 50% !important;
         background-attachment: fixed !important;
     }}
 
-    /* CAIXA DE VIDRO (O Formulário) */
     [data-testid="stForm"] {{
         position: fixed;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         width: 380px;
-        background: rgba(255, 255, 255, 0.07) !important;
+        background: rgba(255, 255, 255, 0.15) !important; /* Aumentei um pouco a opacidade para o preto destacar */
         backdrop-filter: blur(25px);
         -webkit-backdrop-filter: blur(25px);
-        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
         border-radius: 20px;
         padding: 30px !important;
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
         z-index: 9999;
     }}
 
-    /* CORREÇÃO DO TEXTO DIGITADO: Forçando Branco */
+    /* ALTERAÇÃO: TEXTO EM PRETO */
     .stTextInput input {{
-        background-color: transparent !important;
-        color: #FFFFFF !important; /* Branco Puro */
-        -webkit-text-fill-color: #FFFFFF !important; /* Força em navegadores Safari/Chrome */
+        background-color: rgba(255, 255, 255, 0.5) !important; /* Fundo leve para o input */
+        color: #000000 !important; /* PRETO */
+        -webkit-text-fill-color: #000000 !important;
         border: none !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
-        border-radius: 0px !important;
-        padding: 10px 0px !important;
+        border-bottom: 2px solid #00bcd4 !important;
+        border-radius: 5px !important;
+        padding: 10px !important;
         font-size: 16px !important;
+        font-weight: bold !important;
     }}
 
-    /* Cor do Placeholder (Aquele texto que some quando você digita) */
-    .stTextInput input::placeholder {{
-        color: rgba(255, 255, 255, 0.3) !important;
-    }}
-
-    /* Botão Neon */
     .stButton > button {{
         background-color: #00bcd4 !important;
         color: black !important;
@@ -74,12 +66,10 @@ st.markdown(f"""
         height: 45px;
     }}
 
-    /* Ajuste de labels */
     label {{ 
-        color: #00bcd4 !important; 
+        color: #000000 !important; /* Label preta para combinar */
         font-size: 11px !important; 
         font-weight: bold;
-        letter-spacing: 1px;
     }}
     </style>
 """, unsafe_allow_html=True)
@@ -89,22 +79,19 @@ if 'logado' not in st.session_state:
 
 if not st.session_state.logado:
     with st.form("login_crow"):
-        # Cabeçalho do Card
         st.markdown(f"""
             <div style="text-align: center;">
-                <div style="width: 65px; height: 65px; background: rgba(255,255,255,0.1); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2);">
-                    <img src="https://img.icons8.com/ios-filled/50/ffffff/user-male-circle.png" width="35"/>
+                <div style="width: 65px; height: 65px; background: rgba(0,0,0,0.1); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(0,0,0,0.1);">
+                    <img src="https://img.icons8.com/ios-filled/50/000000/user-male-circle.png" width="35"/>
                 </div>
                 <img src="data:image/png;base64,{logo_base64}" width="180">
-                <p style="color: #00bcd4; font-size: 10px; letter-spacing: 2px; font-weight: bold; margin-bottom: 25px;">CROW TECH ELITE</p>
+                <p style="color: #000000; font-size: 10px; letter-spacing: 2px; font-weight: bold; margin-bottom: 25px;">CROW TECH ELITE</p>
             </div>
         """, unsafe_allow_html=True)
 
-        # Inputs
-        usuario = st.text_input("USUÁRIO", placeholder="Digite seu usuário")
-        senha = st.text_input("SENHA", type="password", placeholder="Digite sua senha")
+        usuario = st.text_input("USUÁRIO", placeholder="Username")
+        senha = st.text_input("SENHA", type="password", placeholder="Password")
         
-        # Botão
         enviar = st.form_submit_button("ACESSAR SISTEMA")
 
         if enviar:
@@ -114,10 +101,7 @@ if not st.session_state.logado:
             else:
                 st.error("Acesso Negado")
 else:
-    # AQUI COMEÇA O SEU SISTEMA DEPOIS DO LOGIN
     st.title("🦅 Crow Tech Dashboard")
-    st.write(f"Conectado como: Admin")
-    
     if st.button("Sair do Sistema"):
         st.session_state.logado = False
         st.rerun()
