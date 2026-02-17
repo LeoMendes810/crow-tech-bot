@@ -17,11 +17,14 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- CABEÇALHO COM LOGO ---
+# --- CABEÇALHO COM LOGO BLINDADO ---
 col_l, col_t = st.columns([1, 5])
 with col_l:
-    # Busca o logo na pasta Ativos que você criou
-    st.image("Ativos/logo.png", width=120)
+    try:
+        # Tenta carregar o logo. Se falhar, o site não trava!
+        st.image("Ativos/logo.png", width=120)
+    except:
+        st.write("🐦‍⬛") # Mostra um emoji se a imagem sumir
 with col_t:
     st.markdown("# <span style='color:white'>CROW</span> <span style='color:#0ea5e9'>TECH</span>", unsafe_allow_html=True)
     st.markdown("*Inteligência em cada movimento*")
