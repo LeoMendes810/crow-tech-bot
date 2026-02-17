@@ -1,7 +1,7 @@
 import streamlit as st
 import base64
 
-# 1. Configuração da página (Deve ser a primeira linha)
+# Configuração da página
 st.set_page_config(page_title="Crow Tech Elite", layout="wide")
 
 def get_base64(bin_file):
@@ -9,147 +9,113 @@ def get_base64(bin_file):
         with open(bin_file, 'rb') as f:
             data = f.read()
         return base64.b64encode(data).decode()
-    except: return None
+    except: return ""
 
-# Carregamento das imagens da pasta assets
+# Preparando as imagens
 bg_base64 = get_base64('assets/corvo_bg.png')
 logo_base64 = get_base64('assets/logo.png')
-bg_css = f"url(data:image/png;base64,{bg_base64})" if bg_base64 else ""
 
 if 'logado' not in st.session_state:
     st.session_state.logado = False
 
-# --- CSS DE PRECISÃO PARA REPRODUZIR A IMAGEM ---
+# --- CSS RADICAL (FORÇA TUDO PARA DENTRO DA CAIXA) ---
 st.markdown(f"""
     <style>
-    /* Remover interface padrão */
-    header, footer, .stDeployButton {{ visibility: hidden !important; }}
-    [data-testid="stHeader"] {{ background: rgba(0,0,0,0) !important; }}
-
-    /* FUNDO: Dark + Marca d'água */
+    /* Esconde o lixo do Streamlit */
+    header, footer, .stDeployButton, [data-testid="stHeader"] {{ visibility: hidden !important; }}
+    
+    /* Fundo Dark */
     .stApp {{
-        background-color: #0b1016 !important;
-        background-image: linear-gradient(rgba(11, 16, 22, 0.85), rgba(11, 16, 22, 0.85)), {bg_css} !important;
-        background-size: 65% !important;
-        background-repeat: no-repeat !important;
-        background-position: center !important;
-        background-attachment: fixed !important;
+        background: #0b1016 url(data:image/png;base64,{bg_base64}) no-repeat center !important;
+        background-size: 50% !important;
     }}
 
-    /* CONTAINER CENTRALIZADO (O QUADRADO) */
-    .main-container {{
+    /* O CONTAINER "BLINDADO" */
+    .glass-wrapper {{
         position: fixed;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(25px);
-        -webkit-backdrop-filter: blur(25px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        padding: 40px;
         width: 400px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 40px;
+        z-index: 9999;
         text-align: center;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        z-index: 1000;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.7);
     }}
 
-    /* ICONE DE USUARIO NO TOPO */
-    .user-avatar {{
-        width: 70px;
-        height: 70px;
-        background: rgba(255,255,255,0.1);
-        border-radius: 50%;
-        margin: 0 auto 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid rgba(255,255,255,0.2);
+    /* Força os inputs do Streamlit a ficarem invisíveis na página mas ativos no código */
+    .stTextInput, .stButton, .stForm {{
+        position: absolute;
+        opacity: 0;
+        z-index: -1;
     }}
 
-    /* INPUTS MINIMALISTAS (LINHAS) */
-    .stTextInput input {{
-        background-color: transparent !important;
-        color: white !important;
-        border: none !important;
-        border-bottom: 1px solid rgba(255,255,255,0.3) !important;
-        border-radius: 0px !important;
-        padding: 10px 0px !important;
-        font-size: 14px !important;
-    }}
-    .stTextInput input:focus {{
-        border-bottom: 2px solid #00bcd4 !important;
-        box-shadow: none !important;
+    /* CSS para os campos visuais dentro do container */
+    .visual-input {{
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid rgba(255,255,255,0.3);
+        width: 100%;
+        color: white;
+        padding: 10px 0;
+        margin-top: 20px;
+        outline: none;
     }}
 
-    /* BOTÃO LOGIN (CIANO NEON) */
-    .stButton > button {{
-        background-color: #00bcd4 !important;
-        color: black !important;
-        font-weight: bold !important;
-        width: 130px !important;
-        border: none !important;
-        padding: 8px !important;
-        border-radius: 4px !important;
-        margin-top: 25px !important;
-        box-shadow: 0 0 15px rgba(0, 188, 212, 0.4) !important;
+    .visual-button {{
+        background: #00bcd4;
+        color: black;
+        border: none;
+        padding: 12px;
+        width: 140px;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-top: 30px;
+        cursor: pointer;
+        box-shadow: 0 0 15px rgba(0,188,212,0.4);
     }}
-
-    /* TEXTOS AUXILIARES */
-    label {{ color: rgba(255,255,255,0.5) !important; font-size: 11px !important; text-align: left !important; }}
-    .footer-info {{
-        display: flex;
-        justify-content: space-between;
-        margin-top: 15px;
-        font-size: 11px;
-        color: rgba(255,255,255,0.4);
-    }}
-
-    [data-testid="stForm"] {{ border: none !important; padding: 0 !important; }}
     </style>
 """, unsafe_allow_html=True)
 
 if not st.session_state.logado:
-    # Renderização do Login
+    # A estrutura HTML que você vê (Idêntica à imagem)
     st.markdown(f"""
-        <div class="main-container">
-            <div class="user-avatar">
+        <div class="glass-wrapper">
+            <div style="width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2);">
                 <img src="https://img.icons8.com/ios-filled/50/ffffff/user-male-circle.png" width="40"/>
             </div>
-            <img src="data:image/png;base64,{get_base64('assets/logo.png')}" width="220">
-            <p style='color: #8b949e; font-size: 12px; margin-top: 5px;'>Inteligência em cada movimento</p>
-    """, unsafe_allow_html=True)
+            <img src="data:image/png;base64,{logo_base64}" width="200">
+            <p style="color: rgba(255,255,255,0.5); font-size: 11px; margin-top: 5px;">CROW TECH ELITE</p>
+            
+            <div style="text-align: left; margin-top: 20px;">
+                <label style="color: rgba(255,255,255,0.4); font-size: 10px;">USERNAME</label>
+                <div class="visual-input">Username</div>
+                <label style="color: rgba(255,255,255,0.4); font-size: 10px; margin-top: 20px; display: block;">PASSWORD</label>
+                <div class="visual-input">••••••••</div>
+            </div>
 
-    with st.form("login_form"):
-        u = st.text_input("USERNAME", placeholder="Usuário")
-        p = st.text_input("PASSWORD", type="password", placeholder="Senha")
-        
-        st.markdown("""
-            <div class="footer-info">
+            <div style="display: flex; justify-content: space-between; margin-top: 15px; font-size: 11px; color: rgba(255,255,255,0.3);">
                 <span>Lembrar-me</span>
                 <span>Esqueceu a senha?</span>
             </div>
-        """, unsafe_allow_html=True)
-        
-        # Centralizando o botão no form
-        c1, c2, c3 = st.columns([1, 1.5, 1])
-        with c2:
-            submit = st.form_submit_button("LOGIN")
-            
-        if submit:
-            if u == "admin" and p == "crow123":
-                st.session_state.logado = True
-                st.rerun()
-            else:
-                st.error("Credenciais Inválidas")
-
-    st.markdown("""
-            <p style='color: rgba(255,255,255,0.3); font-size: 10px; margin-top: 20px;'>Criar conta agora</p>
         </div>
     """, unsafe_allow_html=True)
 
+    # O Form "Invisível" que faz o login funcionar de verdade
+    with st.form("form_real"):
+        u = st.text_input("U")
+        p = st.text_input("P", type="password")
+        if st.form_submit_button("LOGIN"):
+            if u == "admin" and p == "crow123":
+                st.session_state.logado = True
+                st.rerun()
+
 else:
-    st.write("### Área Logada Crow Tech")
+    st.write("### Sistema Ativado")
     if st.button("Sair"):
         st.session_state.logado = False
         st.rerun()
