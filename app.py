@@ -5,105 +5,95 @@ import plotly.graph_objects as go
 from streamlit_autorefresh import st_autorefresh
 import os
 
-# CONFIGURAÇÃO DE PÁGINA (Barra lateral agora inicia ABERTA)
-st.set_page_config(page_title="Crow Tech Elite", layout="wide", initial_sidebar_state="expanded")
+# CONFIGURAÇÃO DE PÁGINA
+st.set_page_config(page_title="Crow Tech Elite", layout="wide", initial_sidebar_state="collapsed")
 st_autorefresh(interval=30000, key="datarefresh")
 
-# --- ESTILO CROW TECH ---
+# --- CSS PARA DEIXAR TUDO DARK (INCLUINDO MENUS) ---
 st.markdown("""
     <style>
+    /* Fundo Principal */
     .stApp {
         background-color: #0e1117;
-        background-image: linear-gradient(rgba(14, 17, 23, 0.92), rgba(14, 17, 23, 0.92)), 
+        background-image: linear-gradient(rgba(14, 17, 23, 0.93), rgba(14, 17, 23, 0.93)), 
                           url("https://raw.githubusercontent.com/LeoMendes810/crow-tech-bot/master/assets/logo.png");
         background-attachment: fixed;
-        background-size: 50%;
-        background-repeat: no-repeat;
-        background-position: center;
+        background-size: 45%;
+        background-repeat: no-repeat; background-position: center;
     }
-    [data-testid="stSidebar"] { background-color: #1c2128 !important; border-right: 1px solid #30363d; }
+    
+    /* MENU LATERAL TOTAL DARK */
+    [data-testid="stSidebar"] { background-color: #161b22 !important; border-right: 1px solid #30363d; }
+    [data-testid="stSidebarNav"] { background-color: #161b22 !important; }
+    
+    /* REMOVER FUNDO BRANCO DOS SUBMENUS (EXPANDERS) */
+    .streamlit-expanderHeader { background-color: #1c2128 !important; border: 1px solid #30363d !important; border-radius: 8px !important; }
+    .streamlit-expanderContent { background-color: #161b22 !important; color: white !important; border: none !important; }
+    
+    /* METRICS E TEXTOS */
     [data-testid="stMetric"] { background-color: rgba(28, 33, 40, 0.95) !important; border-radius: 15px; padding: 25px !important; }
-    .titulo-main { font-size: 4.5rem !important; font-weight: 800; margin-bottom: -10px; line-height: 1; color: white; }
-    .slogan-main { font-size: 1.8rem !important; color: #8b949e !important; font-style: italic; margin-top: 0; }
+    .titulo-main { font-size: 4rem !important; font-weight: 800; color: white; line-height: 1; }
+    .slogan-main { font-size: 1.6rem !important; color: #8b949e !important; font-style: italic; }
     h1, h2, h3, p, span, label { color: white !important; }
+    
+    /* Ajuste das tabelas para Dark */
+    .stTable { background-color: transparent !important; }
+    thead tr th { border-bottom: 2px solid #30363d !important; color: #0ea5e9 !important; }
+    tbody tr td { border-bottom: 1px solid #30363d !important; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- SIDEBAR: O MENU QUE VOCÊ PROCURAVA ---
+# --- MENU LATERAL (SIDEBAR) ---
 with st.sidebar:
     st.image("assets/logo.png", width=120)
-    st.markdown("## 📟 Terminal Crow Tech")
+    st.markdown("### 🖥️ PAINEL DE CONTROLE")
     
-    # SEÇÃO 1: GESTÃO DE PARES (Mínimo 6, inicia com os 4 fixos)
-    with st.expander("🔄 Gestão de Pares", expanded=True):
-        lista_20 = [
-            'SOL/USDT', 'BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'DOGE/USDT', 'TRX/USDT',
-            'ADA/USDT', 'MATIC/USDT', 'DOT/USDT', 'LINK/USDT', 'AVAX/USDT', 'SHIB/USDT',
-            'LTC/USDT', 'BCH/USDT', 'UNI/USDT', 'NEAR/USDT', 'APT/USDT', 'ARB/USDT',
-            'TIA/USDT', 'OP/USDT'
-        ]
-        # Aqui garantimos que os 4 originais já vêm selecionados por defeito
-        selecionados = st.multiselect(
-            "Selecione os ativos ativos:",
-            lista_20,
-            default=['SOL/USDT', 'BTC/USDT', 'ETH/USDT', 'XRP/USDT']
-        )
-        
-        if len(selecionados) < 4:
-            st.warning("⚠️ Os 4 pares base devem estar ativos para estabilidade.")
-        else:
-            st.success(f"✅ {len(selecionados)} pares monitorizados.")
+    with st.expander("🔄 GESTÃO DE PARES"):
+        lista_20 = ['SOL/USDT', 'BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'DOGE/USDT', 'TRX/USDT', 'ADA/USDT', 'LINK/USDT', 'AVAX/USDT']
+        selecionados = st.multiselect("Selecione (Min. 4):", lista_20, default=['SOL/USDT', 'BTC/USDT', 'ETH/USDT', 'XRP/USDT'])
 
-    # SEÇÃO 2: FINANCEIRO
-    with st.expander("💰 Financeiro"):
-        st.button("➕ Adicionar Fundos (Depósito)")
-        st.button("➖ Retirar Fundos (Saque)")
-        st.caption("Carteira Destino: Não configurada.")
+    with st.expander("💰 FINANCEIRO"):
+        st.button("➕ ADICIONAR FUNDOS", use_container_width=True)
+        st.button("➖ RETIRAR LUCROS", use_container_width=True)
 
-    # SEÇÃO 3: CONFIGURAÇÕES / SEGURANÇA
-    with st.expander("⚙️ Configurações"):
-        st.subheader("Segurança")
-        st.text_input("E-mail para Alertas")
-        st.text_input("Alterar Chave de Acesso", type="password")
-        st.button("Salvar Preferências")
+    with st.expander("⚙️ CONFIGURAÇÕES"):
+        st.text_input("E-mail para alertas")
+        st.text_input("Nova Senha", type="password")
+        st.button("SALVAR")
 
     st.divider()
-    st.caption("Crow Tech Bot v3.3 | Modo Sniper")
+    st.caption("CROW TECH v3.5 | 23:45")
 
 # --- CABEÇALHO ---
-col_l, col_t = st.columns([1, 5])
-with col_l:
-    if os.path.exists("assets/logo.png"): st.image("assets/logo.png", width=150)
-with col_t:
+col_logo, col_titulo = st.columns([1, 5])
+with col_logo:
+    if os.path.exists("assets/logo.png"): st.image("assets/logo.png", width=130)
+with col_titulo:
     st.markdown("<h1 class='titulo-main'>CROW <span style='color:#0ea5e9;'>TECH</span></h1>", unsafe_allow_html=True)
     st.markdown("<p class='slogan-main'>Inteligência em cada movimento</p>", unsafe_allow_html=True)
 
-# --- CORPO DO DASHBOARD ---
+# --- CORPO PRINCIPAL ---
 st.write("")
-m1, m2, m3 = st.columns(3)
-with m1: st.metric("SALDO BITGET", "$ 185.50")
-with m2: st.metric("RESULTADO", "$ 5.20", delta="Win")
-with m3: st.metric("STATUS", "REAL MODE", delta="OPERANDO")
+c1, c2, c3 = st.columns(3)
+with c1: st.metric("SALDO BITGET", "$ 185.50")
+with c2: st.metric("LUCRO HOJE", "$ 5.20", delta="Win")
+with c3: st.metric("STATUS", "REAL MODE", delta="OPERANDO")
 
 st.divider()
-c_radar, c_perf = st.columns([1.6, 1.4])
+col_left, col_right = st.columns([1.6, 1.4])
 
-with c_radar:
+with col_left:
     st.subheader("📡 Radar de Ativos")
-    if selecionados:
-        # Simulação rápida dos dados dos pares escolhidos
-        df = pd.DataFrame({
-            "Ativo": [p.split('/')[0] for p in selecionados],
-            "Preço": ["$ ---" for _ in selecionados],
-            "Var 24h": ["---" for _ in selecionados]
-        })
-        st.table(df)
-    else:
-        st.info("Utilize o menu lateral para selecionar os pares.")
+    df = pd.DataFrame({
+        "Ativo": [p.split('/')[0] for p in selecionados],
+        "Preço": ["$ ---" for _ in selecionados],
+        "Sinal": ["Aguardando..." for _ in selecionados]
+    })
+    st.table(df)
 
-with c_perf:
+with col_right:
     st.subheader("🎯 Performance")
     fig = go.Figure(go.Pie(labels=['Wins', 'Losses'], values=[85, 15], hole=.6, marker_colors=['#00ff00', '#ff4b4b']))
     fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', font_color='white', height=350, showlegend=True,
-                      legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5, font=dict(size=14, color="white")))
+                      legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5, font=dict(color="white")))
     st.plotly_chart(fig, use_container_width=True)
