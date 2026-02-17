@@ -1,99 +1,102 @@
 import streamlit as st
-import ccxt
 import pandas as pd
-import plotly.graph_objects as go
-from streamlit_autorefresh import st_autorefresh
-import os
+import streamlit.components.v1 as components
 
-# CONFIGURAÇÃO DE PÁGINA
+# --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Crow Tech Elite", layout="wide", initial_sidebar_state="collapsed")
-st_autorefresh(interval=30000, key="datarefresh")
 
-# --- CSS PARA DEIXAR TUDO DARK (INCLUINDO MENUS) ---
-st.markdown("""
-    <style>
-    /* Fundo Principal */
-    .stApp {
-        background-color: #0e1117;
-        background-image: linear-gradient(rgba(14, 17, 23, 0.93), rgba(14, 17, 23, 0.93)), 
-                          url("https://raw.githubusercontent.com/LeoMendes810/crow-tech-bot/master/assets/logo.png");
-        background-attachment: fixed;
-        background-size: 45%;
-        background-repeat: no-repeat; background-position: center;
-    }
+# --- SISTEMA DE LOGIN ---
+if 'logado' not in st.session_state:
+    st.session_state.logado = False
+
+def tela_login():
+    st.markdown("""
+        <style>
+        .login-box {
+            background-color: #161b22;
+            padding: 40px;
+            border-radius: 15px;
+            border: 1px solid #30363d;
+            text-align: center;
+            max-width: 400px;
+            margin: auto;
+        }
+        .stApp { background-color: #0e1117; }
+        </style>
+    """, unsafe_allow_html=True)
     
-    /* MENU LATERAL TOTAL DARK */
-    [data-testid="stSidebar"] { background-color: #161b22 !important; border-right: 1px solid #30363d; }
-    [data-testid="stSidebarNav"] { background-color: #161b22 !important; }
-    
-    /* REMOVER FUNDO BRANCO DOS SUBMENUS (EXPANDERS) */
-    .streamlit-expanderHeader { background-color: #1c2128 !important; border: 1px solid #30363d !important; border-radius: 8px !important; }
-    .streamlit-expanderContent { background-color: #161b22 !important; color: white !important; border: none !important; }
-    
-    /* METRICS E TEXTOS */
-    [data-testid="stMetric"] { background-color: rgba(28, 33, 40, 0.95) !important; border-radius: 15px; padding: 25px !important; }
-    .titulo-main { font-size: 4rem !important; font-weight: 800; color: white; line-height: 1; }
-    .slogan-main { font-size: 1.6rem !important; color: #8b949e !important; font-style: italic; }
-    h1, h2, h3, p, span, label { color: white !important; }
-    
-    /* Ajuste das tabelas para Dark */
-    .stTable { background-color: transparent !important; }
-    thead tr th { border-bottom: 2px solid #30363d !important; color: #0ea5e9 !important; }
-    tbody tr td { border-bottom: 1px solid #30363d !important; }
-    </style>
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.image("assets/logo.png", width=150)
+        st.markdown("<h1 style='text-align: center;'>CROW TECH</h1>", unsafe_allow_html=True)
+        with st.form("login"):
+            usuario = st.text_input("Usuário")
+            senha = st.text_input("Senha", type="password")
+            entrar = st.form_submit_button("ACESSAR SISTEMA", use_container_width=True)
+            
+            if entrar:
+                if usuario == "admin" and senha == "crow123": # Altere aqui
+                    st.session_state.logado = True
+                    st.rerun()
+                else:
+                    st.error("Credenciais inválidas")
+        st.caption("Esqueceu a senha? Entre em contato com o suporte AXIO.")
+
+# --- DASHBOARD PRINCIPAL ---
+def dashboard():
+    # CSS para matar fundos brancos e estilizar o dashboard
+    st.markdown("""
+        <style>
+        /* Fundo dos campos de seleção e menus */
+        div[data-baseweb="select"] > div, div[data-baseweb="input"] > div, .stMultiSelect div {
+            background-color: #1c2128 !important;
+            color: white !important;
+            border: 1px solid #30363d !important;
+        }
+        .stApp { background-color: #0e1117; color: white; }
+        [data-testid="stHeader"] { background: rgba(0,0,0,0); }
+        .stTabs [data-baseweb="tab-list"] { background-color: #161b22; border-radius: 10px; padding: 5px; }
+        </style>
     """, unsafe_allow_html=True)
 
-# --- MENU LATERAL (SIDEBAR) ---
-with st.sidebar:
-    st.image("assets/logo.png", width=120)
-    st.markdown("### 🖥️ PAINEL DE CONTROLE")
-    
-    with st.expander("🔄 GESTÃO DE PARES"):
-        lista_20 = ['SOL/USDT', 'BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'DOGE/USDT', 'TRX/USDT', 'ADA/USDT', 'LINK/USDT', 'AVAX/USDT']
-        selecionados = st.multiselect("Selecione (Min. 4):", lista_20, default=['SOL/USDT', 'BTC/USDT', 'ETH/USDT', 'XRP/USDT'])
+    # --- BARRA SUPERIOR DE ATIVOS ---
+    st.markdown("### 📊 Terminal de Operações")
+    pares_disponiveis = ["SOLUSDT", "BTCUSDT", "ETHUSDT", "XRPUSDT", "DOGEUSDT"]
+    escolha = st.tabs(pares_disponiveis) # Transforma os pares em abas superiores
 
-    with st.expander("💰 FINANCEIRO"):
-        st.button("➕ ADICIONAR FUNDOS", use_container_width=True)
-        st.button("➖ RETIRAR LUCROS", use_container_width=True)
+    for i, aba in enumerate(escolha):
+        with aba:
+            par_atual = pares_disponiveis[i]
+            
+            # --- COLUNAS: GRÁFICO VS MÉTRICAS ---
+            col_grafico, col_dados = st.columns([3, 1])
+            
+            with col_grafico:
+                # Integração Real do TradingView
+                embed_code = f"""
+                <iframe src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_76d4d&symbol=BITGET%3A{par_atual}&interval=5&hidesidetoolbar=1&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=br&utm_source=localhost&utm_medium=widget&utm_campaign=chart&utm_term=BITGET%3A{par_atual}" 
+                width="100%" height="500" frameborder="0" allowfullscreen></iframe>
+                """
+                components.html(embed_code, height=500)
 
-    with st.expander("⚙️ CONFIGURAÇÕES"):
-        st.text_input("E-mail para alertas")
-        st.text_input("Nova Senha", type="password")
-        st.button("SALVAR")
+            with col_dados:
+                st.metric("PREÇO ATUAL", "Analisando...", delta="RSI: --")
+                st.markdown("---")
+                st.write("**Gatilhos Sniper:**")
+                st.caption("✅ EMA 20 Alinhada")
+                st.caption("⏳ Aguardando Volatilidade")
+                if st.button(f"FORÇAR ENTRADA {par_atual}", key=f"btn_{par_atual}"):
+                    st.warning("Comando enviado ao Termux...")
 
-    st.divider()
-    st.caption("CROW TECH v3.5 | 23:45")
+    # Sidebar para Logout e Funções
+    with st.sidebar:
+        st.image("assets/logo.png", width=100)
+        if st.button("SAIR (LOGOUT)"):
+            st.session_state.logado = False
+            st.rerun()
 
-# --- CABEÇALHO ---
-col_logo, col_titulo = st.columns([1, 5])
-with col_logo:
-    if os.path.exists("assets/logo.png"): st.image("assets/logo.png", width=130)
-with col_titulo:
-    st.markdown("<h1 class='titulo-main'>CROW <span style='color:#0ea5e9;'>TECH</span></h1>", unsafe_allow_html=True)
-    st.markdown("<p class='slogan-main'>Inteligência em cada movimento</p>", unsafe_allow_html=True)
-
-# --- CORPO PRINCIPAL ---
-st.write("")
-c1, c2, c3 = st.columns(3)
-with c1: st.metric("SALDO BITGET", "$ 185.50")
-with c2: st.metric("LUCRO HOJE", "$ 5.20", delta="Win")
-with c3: st.metric("STATUS", "REAL MODE", delta="OPERANDO")
-
-st.divider()
-col_left, col_right = st.columns([1.6, 1.4])
-
-with col_left:
-    st.subheader("📡 Radar de Ativos")
-    df = pd.DataFrame({
-        "Ativo": [p.split('/')[0] for p in selecionados],
-        "Preço": ["$ ---" for _ in selecionados],
-        "Sinal": ["Aguardando..." for _ in selecionados]
-    })
-    st.table(df)
-
-with col_right:
-    st.subheader("🎯 Performance")
-    fig = go.Figure(go.Pie(labels=['Wins', 'Losses'], values=[85, 15], hole=.6, marker_colors=['#00ff00', '#ff4b4b']))
-    fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', font_color='white', height=350, showlegend=True,
-                      legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5, font=dict(color="white")))
-    st.plotly_chart(fig, use_container_width=True)
+# --- LÓGICA DE NAVEGAÇÃO ---
+if not st.session_state.logado:
+    tela_login()
+else:
+    dashboard()
