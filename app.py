@@ -246,58 +246,77 @@ else:
         st.markdown("</div>", unsafe_allow_html=True)
 
     # ================= TAB 2 =================
-    with tab2:
-        st.markdown("<div class='product-card'>", unsafe_allow_html=True)
-        st.markdown("### 🛠️ Parâmetros do Robô (Script Termux)")
+   with tab2:
+    st.markdown("<div class='product-card'>", unsafe_allow_html=True)
+    st.markdown("## ⚙️ Estratégia do Robô (Spot)")
 
-        c1, c2 = st.columns(2)
+    st.markdown("### 📈 Filtro de Tendência")
+    st.markdown(
+        "<p class='instruction-text'>"
+        "O robô só procura compras quando o preço está acima da média exponencial.</p>",
+        unsafe_allow_html=True
+    )
+    st.number_input("EMA (períodos)", value=20, disabled=True)
 
-        with c1:
-            st.markdown("<p class='config-label'>Gatilho RSI</p>", unsafe_allow_html=True)
-            st.markdown(
-                "<p class='instruction-text'>Quando o RSI atinge esse valor, "
-                "o robô entende que o ativo está sobrevendido.</p>",
-                unsafe_allow_html=True
-            )
-            st.session_state.rsi_val = st.slider(
-                "RSI", 10, 50, st.session_state.rsi_val
-            )
+    st.divider()
 
-            st.markdown("<br><p class='config-label'>Stop Loss Automático (%)</p>",
-                        unsafe_allow_html=True)
-            st.markdown(
-                "<p class='instruction-text'>Protege sua banca encerrando a operação "
-                "se o preço cair além do limite.</p>",
-                unsafe_allow_html=True
-            )
-            st.number_input("Stop Loss", 0.5, 5.0, 1.5)
+    st.markdown("### 📉 Timing de Entrada (RSI)")
+    st.markdown(
+        "<p class='instruction-text'>"
+        "Compra apenas em pullbacks saudáveis, evitando sobrecompra ou pânico.</p>",
+        unsafe_allow_html=True
+    )
+    c1, c2 = st.columns(2)
+    with c1:
+        st.number_input("RSI mínimo", value=35, disabled=True)
+    with c2:
+        st.number_input("RSI máximo", value=50, disabled=True)
 
-        with c2:
-            st.markdown("<p class='config-label'>Meta de Lucro Diário ($)</p>",
-                        unsafe_allow_html=True)
-            st.markdown(
-                "<p class='instruction-text'>Ao atingir esse lucro diário, "
-                "o robô para automaticamente.</p>",
-                unsafe_allow_html=True
-            )
-            st.session_state.meta_diaria = st.number_input(
-                "Meta diária", 10.0, 5000.0, float(st.session_state.meta_diaria)
-            )
+    st.divider()
 
-            st.markdown("<br><p class='config-label'>Cruzamento de Médias (EMA)</p>",
-                        unsafe_allow_html=True)
-            st.markdown(
-                "<p class='instruction-text'>Entradas quando a média curta cruza "
-                "a média longa.</p>",
-                unsafe_allow_html=True
-            )
-            st.selectbox(
-                "Médias",
-                ["9 / 21 (Recomendado)", "20 / 50", "50 / 200"]
-            )
+    st.markdown("### 🔊 Confirmação por Volume")
+    st.markdown(
+        "<p class='instruction-text'>"
+        "A entrada só acontece se houver interesse real do mercado.</p>",
+        unsafe_allow_html=True
+    )
+    st.number_input("Volume mínimo (× média)", value=1.10, disabled=True)
 
-        st.markdown("</div>", unsafe_allow_html=True)
+    st.divider()
 
+    st.markdown("### 💰 Gestão de Capital")
+    st.markdown(
+        "<p class='instruction-text'>"
+        "Define quanto do saldo disponível será utilizado em cada operação.</p>",
+        unsafe_allow_html=True
+    )
+    st.number_input("Percentual do saldo por trade (%)", value=85, disabled=True)
+
+    st.divider()
+
+    st.markdown("### 🛡️ Proteções da Operação")
+    st.markdown(
+        "<p class='instruction-text'>"
+        "Mecanismos automáticos para reduzir risco e proteger lucro.</p>",
+        unsafe_allow_html=True
+    )
+
+    c3, c4 = st.columns(2)
+    with c3:
+        st.number_input("Ativar Break-even em (%)", value=0.80, disabled=True)
+        st.number_input("Stop máximo (%)", value=-2.5, disabled=True)
+    with c4:
+        st.number_input("Alvo mínimo de lucro (%)", value=1.30, disabled=True)
+        st.number_input("Recuo do topo para saída (%)", value=0.30, disabled=True)
+
+    st.divider()
+
+    st.info(
+        "⚠️ Estes parâmetros refletem exatamente a lógica atual do robô. "
+        "Eles não são editáveis nesta fase para evitar divergência com o código real."
+    )
+
+    st.markdown("</div>", unsafe_allow_html=True)
     # ================= TAB 3 =================
     with tab3:
         st.markdown("<div class='product-card'>", unsafe_allow_html=True)
