@@ -1,11 +1,9 @@
 import streamlit as st
 import base64
 import pandas as pd
-import numpy as np
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
-# 1. Configurações de Elite
+# 1. Configuração da página
 st.set_page_config(page_title="Crow Tech Elite C18.9.1.5", layout="wide")
 
 def get_base64(bin_file):
@@ -18,49 +16,42 @@ def get_base64(bin_file):
 bg_base64 = get_base64('assets/corvo_bg.png')
 logo_base64 = get_base64('assets/logo.png')
 
-# --- CSS DASHBOARD (C18.9.1.5) ---
+# --- CSS LIMPO E ORGANIZADO ---
 st.markdown(f"""
     <style>
     header, footer, .stDeployButton, [data-testid="stHeader"] {{ visibility: hidden !important; }}
     
     .stApp {{
         background: #0b1016 url(data:image/png;base64,{bg_base64}) no-repeat center !important;
-        background-size: 40% !important;
+        background-size: 30% !important;
         background-attachment: fixed !important;
     }}
 
-    /* Estilização dos Cards de Dados */
-    .metric-card {{
+    /* Estilo dos Containers de Vidro */
+    .crow-card {{
         background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(15px);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 15px;
         padding: 20px;
-        text-align: center;
-    }}
-    
-    .stTabs [data-baseweb="tab-list"] {{
-        gap: 24px;
-        background-color: transparent;
+        margin-bottom: 20px;
     }}
 
-    .stTabs [data-baseweb="tab"] {{
-        height: 50px;
-        background-color: rgba(255, 255, 255, 0.05);
-        border-radius: 10px 10px 0px 0px;
-        color: white;
-        font-weight: bold;
+    h3 {{
+        color: #00bcd4 !important;
+        font-size: 16px !important;
+        letter-spacing: 1px;
+        text-transform: uppercase;
     }}
     </style>
 """, unsafe_allow_html=True)
 
-# Lógica de Sessão
-if 'logado' not in st.session_state: st.session_state.logado = False
+# Lógica de Login (Travada como você pediu)
+if 'logado' not in st.session_state:
+    st.session_state.logado = False
 
-# --- TELA DE LOGIN (ESTÁTICA E SALVA) ---
 if not st.session_state.logado:
-    # (O código de login que travamos anteriormente vai aqui...)
-    # Por brevidade, vou focar no Dashboard, mas mantenha sua função de login ativa
+    # (Mantendo o seu login que já funciona)
     with st.form("login_crow"):
         st.markdown(f'<div style="text-align:center"><img src="data:image/png;base64,{logo_base64}" width="160"></div>', unsafe_allow_html=True)
         u = st.text_input("USUÁRIO")
@@ -69,83 +60,86 @@ if not st.session_state.logado:
             if u == "admin" and p == "crow123":
                 st.session_state.logado = True
                 st.rerun()
-
-# --- INTERFACE DO BOT (SURPRESA C18.9.1.5) ---
 else:
-    # Header do Sistema
-    col_logo, col_v, col_status = st.columns([1, 4, 1])
-    with col_logo:
-        st.image(f"data:image/png;base64,{logo_base64}", width=120)
-    with col_v:
-        st.markdown(f"<h2 style='color:#00bcd4; margin-top:10px;'>SISTEMA CROW TECH <span style='color:white; font-size:14px;'>v.C18.9.1.5</span></h2>", unsafe_allow_html=True)
-    with col_status:
-        if st.button("🔴 DESCONECTAR"):
+    # --- DASHBOARD REDESENHADO ---
+    
+    # Barra Superior (Header)
+    c1, c2, c3 = st.columns([1, 3, 1])
+    with c1:
+        st.image(f"data:image/png;base64,{logo_base64}", width=100)
+    with c2:
+        st.markdown("<h1 style='text-align:center; color:white; font-size:24px; margin-top:10px;'>PAINEL DE OPERAÇÕES <span style='color:#00bcd4;'>C18.9.1.5</span></h1>", unsafe_allow_html=True)
+    with c3:
+        if st.button("SAIR", use_container_width=True):
             st.session_state.logado = False
             st.rerun()
 
     st.markdown("---")
 
-    # Layout Principal: 3 Colunas
-    col1, col2, col3 = st.columns([1.5, 3, 1.5])
+    # Linha 1: Resumo em 3 Blocos
+    m1, m2, m3, m4 = st.columns(4)
+    with m1:
+        st.markdown('<div class="crow-card"><h3>💰 Saldo Total</h3><h2 style="color:white;">$ 10.250,00</h2></div>', unsafe_allow_html=True)
+    with m2:
+        st.markdown('<div class="crow-card"><h3>📈 Lucro Hoje</h3><h2 style="color:#00ff88;">+ $ 425,10</h2></div>', unsafe_allow_html=True)
+    with m3:
+        st.markdown('<div class="crow-card"><h3>🤖 Status Bot</h3><h2 style="color:#00bcd4;">EXECUTANDO</h2></div>', unsafe_allow_html=True)
+    with m4:
+        st.markdown('<div class="crow-card"><h3>📡 Latência</h3><h2 style="color:white;">12ms</h2></div>', unsafe_allow_html=True)
 
-    # --- COLUNA 1: ATIVOS E PERFORMANCE ---
-    with col1:
-        st.markdown("### 📊 Ativos em Monitoramento")
-        ativos = pd.DataFrame({
-            'Par': ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'BNB/USDT'],
-            'Sinal': ['COMPRA', 'AGUARDAR', 'VENDA', 'COMPRA'],
-            'Força': ['88%', '45%', '92%', '76%']
-        })
-        st.table(ativos)
+    # Linha 2: O Principal (Gráfico e Ativos)
+    col_grafico, col_ativos = st.columns([3, 1])
 
-        st.markdown("### 🍩 Alocação de Carteira")
-        # Gráfico de Rosca (Donut)
-        fig_donut = go.Figure(data=[go.Pie(labels=['BTC', 'ETH', 'SOL', 'Stable'], 
-                             values=[4500, 2500, 1500, 1500], hole=.6)])
-        fig_donut.update_layout(showlegend=False, margin=dict(t=0, b=0, l=0, r=0), 
-                                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-        fig_donut.update_traces(marker=dict(colors=['#00bcd4', '#004d4d', '#008b8b', '#1a1a1a']))
-        st.plotly_chart(fig_donut, use_container_width=True)
-
-    # --- COLUNA 2: GRÁFICO AO VIVO E INDICADORES ---
-    with col2:
-        st.markdown("### 📈 Gráfico em Tempo Real (RSI / EMA)")
+    with col_grafico:
+        st.markdown('<div class="crow-card">', unsafe_allow_html=True)
+        st.markdown("<h3>📈 Monitoramento em Tempo Real</h3>", unsafe_allow_html=True)
         
-        # Gerando dados fictícios para o gráfico
-        df = pd.DataFrame({
-            'Date': pd.date_range(start='2026-01-01', periods=100, freq='H'),
-            'Close': np.random.normal(50000, 1500, 100).cumsum()
-        })
-        df['EMA_20'] = df['Close'].ewm(span=20).mean()
-        df['EMA_50'] = df['Close'].ewm(span=50).mean()
-
-        fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.03, row_heights=[0.7, 0.3])
-        
-        # Velas/Linha de Preço e EMAs
-        fig.add_trace(go.Scatter(x=df['Date'], y=df['Close'], name='Preço', line=dict(color='#00bcd4', width=2)), row=1, col=1)
-        fig.add_trace(go.Scatter(x=df['Date'], y=df['EMA_20'], name='EMA 20', line=dict(color='white', width=1, dash='dot')), row=1, col=1)
-        
-        # RSI Simulado
-        fig.add_trace(go.Bar(x=df['Date'], y=np.random.randint(30, 70, 100), name='RSI', marker_color='#004d4d'), row=2, col=1)
-        
-        fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
-                          margin=dict(t=20, b=20), height=500, showlegend=False)
+        # Gráfico de Linha Simples e Limpo (Preço + EMA)
+        dados = pd.DataFrame({'Preço': [50, 52, 51, 53, 55, 54, 56, 58, 57, 59]})
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(y=dados['Preço'], mode='lines+markers', name='Preço', line=dict(color='#00bcd4', width=3)))
+        fig.update_layout(
+            template="plotly_dark", 
+            paper_bgcolor='rgba(0,0,0,0)', 
+            plot_bgcolor='rgba(0,0,0,0)',
+            height=350,
+            margin=dict(l=20, r=20, t=20, b=20)
+        )
         st.plotly_chart(fig, use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    # --- COLUNA 3: LOGS E OPERAÇÕES ---
-    with col3:
-        st.markdown("### 🛡️ Operações Recentes")
-        for i in range(5):
-            st.info(f"🟢 BUY Order: {np.random.choice(['BTC', 'SOL'])} | Profit: +{np.random.uniform(1,5):.2f}%")
-        
-        st.markdown("### ⚙️ Parâmetros C18")
-        st.slider("Agressividade do RSI", 0, 100, 70)
-        st.checkbox("Trailing Stop Ativo", value=True)
-        st.button("⚡ EXECUÇÃO FORÇADA", use_container_width=True)
+    with col_ativos:
+        st.markdown('<div class="crow-card">', unsafe_allow_html=True)
+        st.markdown("<h3>📋 Lista de Ativos</h3>", unsafe_allow_html=True)
+        st.write("**BTC/USDT** ● 🟢 Compra")
+        st.write("**ETH/USDT** ● ⚪ Aguardar")
+        st.write("**SOL/USDT** ● 🔴 Venda")
+        st.write("**BNB/USDT** ● 🟢 Compra")
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    # Rodapé Técnico
-    st.markdown(f"""
-        <div style="text-align: center; color: rgba(255,255,255,0.2); font-size: 10px; margin-top: 50px;">
-            SISTEMA CROW TECH ELITE // ENCRYPTED CONNECTION // LATENCY: 14ms // {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M')}
-        </div>
-    """, unsafe_allow_html=True)
+    # Linha 3: Rosca e Indicadores Técnicos
+    col_rosca, col_rsi, col_ema = st.columns(3)
+
+    with col_rosca:
+        st.markdown('<div class="crow-card">', unsafe_allow_html=True)
+        st.markdown("<h3>🍩 Alocação</h3>", unsafe_allow_html=True)
+        fig_donut = go.Figure(data=[go.Pie(labels=['BTC', 'Altcoins', 'Cash'], values=[50, 30, 20], hole=.7)])
+        fig_donut.update_layout(showlegend=False, height=150, margin=dict(t=0, b=0, l=0, r=0), paper_bgcolor='rgba(0,0,0,0)')
+        fig_donut.update_traces(marker=dict(colors=['#00bcd4', '#004d4d', '#1a1a1a']))
+        st.plotly_chart(fig_donut, use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with col_rsi:
+        st.markdown('<div class="crow-card">', unsafe_allow_html=True)
+        st.markdown("<h3>📊 Indicador RSI</h3>", unsafe_allow_html=True)
+        st.progress(65)
+        st.write("RSI Atual: **65 (Neutro)**")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with col_ema:
+        st.markdown('<div class="crow-card">', unsafe_allow_html=True)
+        st.markdown("<h3>📉 Cruzamento EMA</h3>", unsafe_allow_html=True)
+        st.write("EMA 20: **54.210**")
+        st.write("EMA 50: **53.900**")
+        st.write("Tendência: **ALTA**")
+        st.markdown('</div>', unsafe_allow_html=True)
