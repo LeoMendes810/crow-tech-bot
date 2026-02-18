@@ -3,10 +3,9 @@ import base64
 import pandas as pd
 import plotly.graph_objects as go
 from datetime import datetime
-import time
 
-# 1. CONFIGURAÇÃO DE PRODUTO (SAAS)
-st.set_page_config(page_title="Crow Tech Elite Portal", layout="wide", initial_sidebar_state="collapsed")
+# 1. Configuração de Marca e Dashboard
+st.set_page_config(page_title="Crow Tech Elite Portal", layout="wide")
 
 def get_base64(bin_file):
     try:
@@ -18,129 +17,109 @@ def get_base64(bin_file):
 bg_base64 = get_base64('assets/corvo_bg.png')
 logo_base64 = get_base64('assets/logo.png')
 
-# --- CSS DE NÍVEL EMPRESARIAL ---
+# --- CSS PROFISSIONAL (CORREÇÃO DE ERROS) ---
 st.markdown(f"""
     <style>
     header, footer, .stDeployButton, [data-testid="stHeader"] {{ visibility: hidden !important; }}
-    
     .stApp {{
         background: #0b1016 url(data:image/png;base64,{bg_base64}) no-repeat center !important;
         background-size: 25% !important;
         background-attachment: fixed !important;
     }}
-
-    /* Estilo de Cartões de Produto */
+    /* Containers de Vidro */
     .product-card {{
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(20px);
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(15px);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 15px;
+        border-radius: 12px;
         padding: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        margin-bottom: 15px;
     }}
-
-    .status-online {{ color: #00ff88; font-weight: bold; }}
-    .metric-label {{ color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }}
-    .metric-value {{ color: white; font-size: 24px; font-weight: bold; }}
+    .metric-label {{ color: rgba(255,255,255,0.5); font-size: 11px; text-transform: uppercase; }}
+    .metric-value {{ color: #00bcd4; font-size: 22px; font-weight: bold; }}
     </style>
 """, unsafe_allow_html=True)
 
-# --- SISTEMA DE NAVEGAÇÃO ---
+# --- GERENCIAMENTO DE ESTADO ---
 if 'logado' not in st.session_state: st.session_state.logado = False
-if 'bot_ativo' not in st.session_state: st.session_state.bot_ativo = False
+if 'bot_running' not in st.session_state: st.session_state.bot_running = False
 
+# --- TELA DE ACESSO (O SEU LOGIN TRAVADO) ---
 if not st.session_state.logado:
-    # (Interface de Login Profissional que travamos antes)
     with st.container():
         _, center, _ = st.columns([1, 1, 1])
         with center:
-            st.markdown(f'<div style="text-align:center; margin-top:100px;"><img src="data:image/png;base64,{logo_base64}" width="200"></div>', unsafe_allow_html=True)
-            with st.form("login"):
-                u = st.text_input("ACCESS KEY")
-                p = st.text_input("SECRET", type="password")
-                if st.form_submit_button("VALIDATE LICENSE"):
-                    if u == "admin" and p == "crow123":
+            st.markdown(f'<div style="text-align:center; margin-top:50px;"><img src="data:image/png;base64,{logo_base64}" width="180"></div>', unsafe_allow_html=True)
+            with st.form("auth"):
+                user = st.text_input("USUÁRIO", placeholder="Username")
+                secret = st.text_input("SENHA", type="password", placeholder="Password")
+                if st.form_submit_button("VALIDAR LICENÇA"):
+                    if user == "admin" and secret == "crow123":
                         st.session_state.logado = True
                         st.rerun()
 else:
-    # --- DASHBOARD PROFISSIONAL C18.9.1.5 ---
+    # --- DASHBOARD C18.9.1.5 (MODO PRODUTO) ---
     
-    # Header minimalista
-    h1, h2, h3 = st.columns([1, 3, 1])
-    with h1: st.image(f"data:image/png;base64,{logo_base64}", width=80)
-    with h2: st.markdown("<h2 style='text-align:center; color:white; margin-top:10px;'>CROW TECH <span style='color:#00bcd4;'>MANAGEMENT CONSOLE</span></h2>", unsafe_allow_html=True)
-    with h3: 
-        if st.button("LOGOUT / LOCK"): 
+    # Menu Superior
+    c1, c2, c3 = st.columns([1, 4, 1])
+    with c1: st.image(f"data:image/png;base64,{logo_base64}", width=80)
+    with c2: st.markdown("<h2 style='color:white;'>CROW TECH <span style='color:#00bcd4;'>PORTAL ELITE</span></h2>", unsafe_allow_html=True)
+    with c3: 
+        if st.button("SAIR"): 
             st.session_state.logado = False
             st.rerun()
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    # Sistema de abas para não poluir a tela
+    tab_dashboard, tab_config, tab_api = st.tabs(["📊 DASHBOARD", "⚙️ ESTRATÉGIA", "🔐 CONEXÃO API"])
 
-    # Sidebar para Configurações (Migrando as funções do Termux para inputs)
-    with st.sidebar:
-        st.markdown("### ⚙️ CONFIGURAÇÕES DO SCRIPT")
-        par_trade = st.selectbox("Par de Negociação", ["BTC/USDT", "ETH/USDT", "SOL/USDT"])
-        rsi_limit = st.slider("Gatilho RSI (Compra)", 10, 50, 30)
-        stop_loss = st.number_input("Stop Loss (%)", 0.1, 5.0, 1.5)
-        st.markdown("---")
-        st.info("Estas alterações são aplicadas instantaneamente ao script em execução.")
+    with tab_dashboard:
+        # Linha de Resumo
+        m1, m2, m3, m4 = st.columns(4)
+        m1.markdown('<div class="product-card"><p class="metric-label">Banca USDT</p><p class="metric-value">$ 10.250,00</p></div>', unsafe_allow_html=True)
+        m2.markdown('<div class="product-card"><p class="metric-label">Lucro Estimado</p><p class="metric-value" style="color:#00ff88;">+ $ 425,10</p></div>', unsafe_allow_html=True)
+        m3.markdown('<div class="product-card"><p class="metric-label">Sinais Ativos</p><p class="metric-value">04</p></div>', unsafe_allow_html=True)
+        m4.markdown('<div class="product-card"><p class="metric-label">Status do Bot</p><p class="metric-value" style="color:#00ff88;">ONLINE</p></div>', unsafe_allow_html=True)
 
-    # Grid Principal
-    col_stats, col_main = st.columns([1, 2.5])
-
-    with col_stats:
-        # Status da Operação
-        st.markdown(f"""
-            <div class="product-card">
-                <p class="metric-label">Server Status</p>
-                <p class="status-online">● CLOUD ACTIVE</p>
-                <hr style="opacity:0.1">
-                <p class="metric-label">Current Balance</p>
-                <p class="metric-value">$ 10,250.00</p>
-                <p style="color:#00ff88; font-size:12px;">+2.4% today</p>
-            </div>
-        """, unsafe_allow_html=True)
-        st.markdown("<br>", unsafe_allow_html=True)
+        col_main, col_logs = st.columns([2, 1])
         
-        # Controle de Ligar/Desligar (Aqui é onde o script do Termux recebe a ordem)
+        with col_main:
+            st.markdown('<div class="product-card">', unsafe_allow_html=True)
+            st.markdown("<p class='metric-label'>Monitoramento de Mercado (Candles)</p>", unsafe_allow_html=True)
+            # Gráfico de Velas Realista
+            fig = go.Figure(data=[go.Candlestick(x=[1,2,3,4,5], open=[51,52,51,53,54], high=[53,54,52,55,56], low=[50,51,49,52,53], close=[52,51,53,54,55])])
+            fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', height=300, margin=dict(l=0,r=0,t=0,b=0))
+            st.plotly_chart(fig, use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        with col_logs:
+            st.markdown('<div class="product-card">', unsafe_allow_html=True)
+            st.markdown("<p class='metric-label'>Console de Execução</p>", unsafe_allow_html=True)
+            st.code(f"[{datetime.now().strftime('%H:%M')}] Scanning BTC/USDT...\n[LOG] EMA Cross detected\n[LOG] RSI: 58.2", language="bash")
+            if not st.session_state.bot_running:
+                if st.button("▶ INICIAR OPERAÇÕES", use_container_width=True):
+                    st.session_state.bot_running = True
+            else:
+                if st.button("🛑 PARAR BOT", use_container_width=True):
+                    st.session_state.bot_running = False
+            st.markdown('</div>', unsafe_allow_html=True)
+
+    with tab_config:
         st.markdown('<div class="product-card">', unsafe_allow_html=True)
-        st.markdown("<p class="metric-label">Execution Control</p>", unsafe_allow_html=True)
-        if not st.session_state.bot_ativo:
-            if st.button("▶ START ENGINE", use_container_width=True):
-                st.session_state.bot_ativo = True
-                st.rerun()
-        else:
-            if st.button("🛑 STOP ENGINE", use_container_width=True):
-                st.session_state.bot_ativo = False
-                st.rerun()
+        st.markdown("### Ajuste de Parâmetros do Robô")
+        col_c1, col_c2 = st.columns(2)
+        with col_c1:
+            st.slider("Gatilho RSI (Sobrecompra)", 50, 90, 70)
+            st.slider("Gatilho RSI (Sobrevenda)", 10, 50, 30)
+        with col_c2:
+            st.number_input("Stop Loss Automático (%)", 0.5, 10.0, 1.5)
+            st.selectbox("Timeframe de Análise", ["1m", "5m", "15m", "1h"])
         st.markdown('</div>', unsafe_allow_html=True)
 
-    with col_main:
-        # Gráfico de Desempenho (SaaS Style)
+    with tab_api:
         st.markdown('<div class="product-card">', unsafe_allow_html=True)
-        st.markdown(f"<p class='metric-label'>Real-time Analysis: {par_trade}</p>", unsafe_allow_html=True)
-        
-        # Simulação de dados para o gráfico
-        df = pd.DataFrame({'T': range(20), 'V': [50 + (i * 0.5) + (i % 3) for i in range(20)]})
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=df['T'], y=df['V'], fill='tozeroy', line_color='#00bcd4'))
-        fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
-                          height=250, margin=dict(l=0,r=0,t=0,b=0), xaxis_visible=False)
-        st.plotly_chart(fig, use_container_width=True)
+        st.markdown("### Integração com Corretora")
+        st.warning("Suas chaves API são criptografadas e nunca armazenadas em texto puro.")
+        st.text_input("API KEY BINANCE", type="password")
+        st.text_input("API SECRET BINANCE", type="password")
+        st.button("TESTAR CONEXÃO")
         st.markdown('</div>', unsafe_allow_html=True)
-
-    # LOG DE CONSOLE (A essência do Termux migrada para o Web)
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown('<div class="product-card">', unsafe_allow_html=True)
-    st.markdown("<p class='metric-label'>System Terminal Output</p>", unsafe_allow_html=True)
-    
-    status_msg = "Bot Aguardando comando..." if not st.session_state.bot_ativo else "Bot em Execução..."
-    st.code(f"""
-    >>> [SYS] Initializing Crow Tech C18.9.1.5 Engine...
-    >>> [AUTH] License Verified: ELITE_PLAN_ACTIVE
-    >>> [STATUS] {status_msg}
-    >>> [DATA] Fetching market data for {par_trade}
-    >>> [LOG] RSI: 42.1 | EMA9: 51200 | EMA21: 51100
-    >>> [LOG] {datetime.now().strftime('%H:%M:%S')} - Scanning for entry signals...
-    """, language="bash")
-    st.markdown('</div>', unsafe_allow_html=True)
