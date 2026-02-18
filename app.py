@@ -15,7 +15,7 @@ def get_base64(bin_file):
 bg_base64 = get_base64('assets/corvo_bg.png')
 logo_base64 = get_base64('assets/logo.png')
 
-# --- CSS PARA COR DA LETRA PRETA ---
+# --- CSS REFINADO: FOCO NO DETALHE ---
 st.markdown(f"""
     <style>
     header, footer, .stDeployButton, [data-testid="stHeader"] {{ visibility: hidden !important; }}
@@ -26,50 +26,62 @@ st.markdown(f"""
         background-attachment: fixed !important;
     }}
 
+    /* CAIXA DE VIDRO */
     [data-testid="stForm"] {{
         position: fixed;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 380px;
-        background: rgba(255, 255, 255, 0.15) !important; /* Aumentei um pouco a opacidade para o preto destacar */
+        width: 360px;
+        background: rgba(255, 255, 255, 0.12) !important;
         backdrop-filter: blur(25px);
         -webkit-backdrop-filter: blur(25px);
         border: 1px solid rgba(255, 255, 255, 0.2) !important;
         border-radius: 20px;
-        padding: 30px !important;
+        padding: 20px 35px 35px 35px !important; /* Ajuste no padding superior */
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
         z-index: 9999;
     }}
 
-    /* ALTERAÇÃO: TEXTO EM PRETO */
+    /* INPUTS COM LETRA PRETA E VISÍVEL */
     .stTextInput input {{
-        background-color: rgba(255, 255, 255, 0.5) !important; /* Fundo leve para o input */
-        color: #000000 !important; /* PRETO */
+        background-color: rgba(255, 255, 255, 0.7) !important;
+        color: #000000 !important;
         -webkit-text-fill-color: #000000 !important;
         border: none !important;
         border-bottom: 2px solid #00bcd4 !important;
         border-radius: 5px !important;
-        padding: 10px !important;
-        font-size: 16px !important;
+        padding: 8px !important;
         font-weight: bold !important;
     }}
 
+    /* BOTÃO ACESSAR */
     .stButton > button {{
         background-color: #00bcd4 !important;
         color: black !important;
-        font-weight: bold !important;
+        font-weight: 800 !important;
         width: 100% !important;
         border: none !important;
         box-shadow: 0 0 15px rgba(0, 188, 212, 0.4) !important;
-        margin-top: 20px;
+        margin-top: 10px;
         height: 45px;
+        text-transform: uppercase;
     }}
 
     label {{ 
-        color: #000000 !important; /* Label preta para combinar */
-        font-size: 11px !important; 
+        color: #000000 !important; 
+        font-size: 10px !important; 
+        font-weight: 900 !important;
+        margin-bottom: -5px !important;
+    }}
+
+    /* LINKS INFERIORES */
+    .link-text {{
+        color: #000000;
+        font-size: 11px;
+        text-decoration: none;
         font-weight: bold;
+        cursor: pointer;
     }}
     </style>
 """, unsafe_allow_html=True)
@@ -79,29 +91,42 @@ if 'logado' not in st.session_state:
 
 if not st.session_state.logado:
     with st.form("login_crow"):
+        # LOGO MAIS PARA CIMA (Removido o ícone de silhueta)
         st.markdown(f"""
-            <div style="text-align: center;">
-                <div style="width: 65px; height: 65px; background: rgba(0,0,0,0.1); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(0,0,0,0.1);">
-                    <img src="https://img.icons8.com/ios-filled/50/000000/user-male-circle.png" width="35"/>
-                </div>
-                <img src="data:image/png;base64,{logo_base64}" width="180">
-                <p style="color: #000000; font-size: 10px; letter-spacing: 2px; font-weight: bold; margin-bottom: 25px;">CROW TECH ELITE</p>
+            <div style="text-align: center; margin-bottom: 10px;">
+                <img src="data:image/png;base64,{logo_base64}" width="160">
+                <p style="color: #000000; font-size: 9px; letter-spacing: 2px; font-weight: 900; margin-top: -10px;">CROW TECH ELITE</p>
             </div>
         """, unsafe_allow_html=True)
 
         usuario = st.text_input("USUÁRIO", placeholder="Username")
         senha = st.text_input("SENHA", type="password", placeholder="Password")
         
+        # LINHA DE ESQUECI A SENHA
+        st.markdown(f"""
+            <div style="display: flex; justify-content: flex-end; margin-top: -15px; margin-bottom: 10px;">
+                <span class="link-text">Esqueceu a senha?</span>
+            </div>
+        """, unsafe_allow_html=True)
+        
         enviar = st.form_submit_button("ACESSAR SISTEMA")
+
+        # LINHA DE CADASTRO
+        st.markdown(f"""
+            <div style="text-align: center; margin-top: 20px;">
+                <span style="color: rgba(0,0,0,0.6); font-size: 11px;">Não tem conta? </span>
+                <span class="link-text" style="color: #004d4d;">Cadastre-se aqui</span>
+            </div>
+        """, unsafe_allow_html=True)
 
         if enviar:
             if usuario == "admin" and senha == "crow123":
                 st.session_state.logado = True
                 st.rerun()
             else:
-                st.error("Acesso Negado")
+                st.error("Credenciais incorretas")
 else:
     st.title("🦅 Crow Tech Dashboard")
-    if st.button("Sair do Sistema"):
+    if st.button("Sair"):
         st.session_state.logado = False
         st.rerun()
