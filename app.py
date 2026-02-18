@@ -49,15 +49,13 @@ header, footer, .stDeployButton, [data-testid="stHeader"] {{
     background-size: 25%;
     background-attachment: fixed;
 }}
-
-.product-card {{
-    background: rgba(10,15,20,0.85);
-    border: 1px solid rgba(0,188,212,0.35);
-    border-radius: 14px;
-    padding: 18px;
-    margin-bottom: 12px;
-    box-shadow: 0 0 25px rgba(0,188,212,0.15);
-}}
+.product-card {
+    background: linear-gradient(
+        180deg,
+        rgba(15,25,35,0.92),
+        rgba(5,10,15,0.92)
+    );
+}
 
 .config-label {{
     color: #00bcd4;
@@ -246,19 +244,51 @@ else:
         st.markdown("</div>", unsafe_allow_html=True)
 
     # ================= TAB 2 =================
-    with tab2:
-        st.markdown("<div class='product-card'>", unsafe_allow_html=True)
-        st.markdown("### 🛠️ Parâmetros do Robô")
+  with tab2:
+    st.markdown("<div class='product-card'>", unsafe_allow_html=True)
+    st.markdown("### 🛠️ Parâmetros do Robô (Script Termux)")
 
+    c1, c2 = st.columns(2)
+
+    with c1:
         st.markdown("<p class='config-label'>Gatilho RSI</p>", unsafe_allow_html=True)
+        st.markdown(
+            "<p class='instruction-text'>Quando o RSI atinge esse valor, o robô entende que o ativo está sobrevendido.</p>",
+            unsafe_allow_html=True
+        )
         st.session_state.rsi_val = st.slider("RSI", 10, 50, st.session_state.rsi_val)
 
+        st.markdown("<br><p class='config-label'>Stop Loss Automático (%)</p>", unsafe_allow_html=True)
+        st.markdown(
+            "<p class='instruction-text'>Protege sua banca encerrando a operação se o preço cair além do limite.</p>",
+            unsafe_allow_html=True
+        )
+        st.number_input("Stop Loss", 0.5, 5.0, 1.5)
+
+    with c2:
         st.markdown("<p class='config-label'>Meta de Lucro Diário ($)</p>", unsafe_allow_html=True)
+        st.markdown(
+            "<p class='instruction-text'>Ao atingir esse lucro diário, o robô para automaticamente.</p>",
+            unsafe_allow_html=True
+        )
         st.session_state.meta_diaria = st.number_input(
-            "Meta", 10.0, 5000.0, st.session_state.meta_diaria
+            "Meta diária",
+            10.0,
+            5000.0,
+            float(st.session_state.meta_diaria)
         )
 
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("<br><p class='config-label'>Cruzamento de Médias (EMA)</p>", unsafe_allow_html=True)
+        st.markdown(
+            "<p class='instruction-text'>O robô busca entradas quando a média curta cruza a média longa.</p>",
+            unsafe_allow_html=True
+        )
+        st.selectbox(
+            "Médias",
+            ["9 / 21 (Recomendado)", "20 / 50", "50 / 200"]
+        )
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
     # ================= TAB 3 =================
     with tab3:
