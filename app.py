@@ -210,10 +210,27 @@ else:
         st.markdown("<div class='product-card'>", unsafe_allow_html=True)
         st.markdown("<small>LIVE CHART (TradingView)</small>", unsafe_allow_html=True)
         st.components.v1.html("""
-            <div style="height:400px;display:flex;align-items:center;justify-content:center;color:#888;">
-                TradingView Widget aqui
-            </div>
-        """, height=400)
+<div class="tradingview-widget-container">
+  <div id="tradingview_crow"></div>
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <script type="text/javascript">
+  new TradingView.widget({
+    "width": "100%",
+    "height": 420,
+    "symbol": "BINANCE:BTCUSDT",
+    "interval": "1",
+    "timezone": "Etc/UTC",
+    "theme": "dark",
+    "style": "1",
+    "locale": "br",
+    "toolbar_bg": "#0b1016",
+    "hide_top_toolbar": false,
+    "allow_symbol_change": true,
+    "container_id": "tradingview_crow"
+  });
+  </script>
+</div>
+""", height=420)
         st.markdown("</div>", unsafe_allow_html=True)
 
         # CONSOLE
