@@ -92,3 +92,39 @@ if not st.session_state.logado:
                 st.rerun()
             else:
                 st.error("Usuário ou senha inválidos")
+else:
+    # ===========================
+    # DASHBOARD SIMPLES (TESTE)
+    # ===========================
+    st.markdown("""
+    <style>
+    .dashboard-box {
+        background: rgba(10,15,20,0.85);
+        border: 1px solid rgba(0,188,212,0.4);
+        border-radius: 14px;
+        padding: 25px;
+        box-shadow: 0 0 25px rgba(0,188,212,0.2);
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns([1,4,1])
+
+    with col1:
+        st.image(f"data:image/png;base64,{logo_base64}", width=60)
+
+    with col2:
+        st.markdown(
+            "<h2 style='text-align:center;color:white'>CROW TECH <span style='color:#00bcd4'>DASHBOARD</span></h2>",
+            unsafe_allow_html=True
+        )
+
+    with col3:
+        if st.button("SAIR"):
+            st.session_state.logado = False
+            st.rerun()
+
+    st.markdown("<div class='dashboard-box'>", unsafe_allow_html=True)
+    st.success("🚀 Dashboard carregado com sucesso!")
+    st.write("Aqui entra todo o conteúdo do seu sistema.")
+    st.markdown("</div>", unsafe_allow_html=True)
