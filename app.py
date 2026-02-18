@@ -21,7 +21,7 @@ bg_base64 = get_base64("assets/corvo_bg.png")
 logo_base64 = get_base64("assets/logo.png")
 
 # ======================================================
-# SESSION STATE (MEMÓRIA)
+# SESSION STATE
 # ======================================================
 if "logado" not in st.session_state:
     st.session_state.logado = False
@@ -36,57 +36,48 @@ if "rsi_val" not in st.session_state:
     st.session_state.rsi_val = 30
 
 # ======================================================
-# CSS GLOBAL (LOGIN + DASHBOARD)
+# CSS GLOBAL (SEM f-string)
 # ======================================================
-st.markdown(f"""
+st.markdown("""
 <style>
-header, footer, .stDeployButton, [data-testid="stHeader"] {{
+header, footer, .stDeployButton, [data-testid="stHeader"] {
     visibility: hidden !important;
-}}
-
-.stApp {{
-    background: #0b1016 url(data:image/png;base64,{bg_base64}) no-repeat center;
-    background-size: 25%;
-    background-attachment: fixed;
-}}
-.product-card {
-    background: linear-gradient(
-        180deg,
-        rgba(15,25,35,0.92),
-        rgba(5,10,15,0.92)
-    );
 }
 
-.config-label {{
+.stApp {
+    background: #0b1016;
+}
+
+.product-card {
+    background: rgba(10,15,20,0.9);
+    border: 1px solid rgba(0,188,212,0.35);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 12px;
+    box-shadow: 0 0 25px rgba(0,188,212,0.18);
+}
+
+.config-label {
     color: #00bcd4;
     font-weight: bold;
     font-size: 14px;
-}}
+}
 
-.instruction-text {{
+.instruction-text {
     color: white;
     font-size: 12px;
     opacity: 0.8;
-}}
+}
 
-.stCodeBlock {{
-    background-color: #000 !important;
-    border: 1px solid #00bcd4 !important;
-}}
-
-code {{
-    color: #00ff88 !important;
-}}
-
-.stTextInput input {{
+.stTextInput input {
     background: rgba(255,255,255,0.85) !important;
     color: #000 !important;
     font-weight: bold;
     border: none !important;
     border-bottom: 2px solid #00bcd4 !important;
-}}
+}
 
-.stButton > button {{
+.stButton > button {
     background: rgba(0,188,212,0.18) !important;
     color: #eaffff !important;
     font-weight: 800 !important;
@@ -94,12 +85,12 @@ code {{
     border: 1px solid rgba(0,188,212,0.6) !important;
     border-radius: 10px !important;
     box-shadow: 0 0 15px rgba(0,188,212,0.35);
-}}
+}
 
-.stButton > button:hover {{
+.stButton > button:hover {
     background: rgba(0,188,212,0.35) !important;
     box-shadow: 0 0 22px rgba(0,188,212,0.7);
-}}
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -154,189 +145,92 @@ if not st.session_state.logado:
                 st.error("Usuário ou senha inválidos")
 
 # ======================================================
-# DASHBOARD COMPLETO
+# DASHBOARD
 # ======================================================
 else:
     # HEADER
-    h1, h2, h3 = st.columns([1,4,1])
+    h1, h2, h3 = st.columns([1, 4, 1])
+
     with h1:
         st.image(f"data:image/png;base64,{logo_base64}", width=60)
+
     with h2:
         st.markdown(
             "<h2 style='text-align:center;color:white;'>CROW TECH <span style='color:#00bcd4;'>PORTAL ELITE</span></h2>",
             unsafe_allow_html=True
         )
+
     with h3:
         if st.button("SAIR"):
             st.session_state.logado = False
             st.rerun()
-tab1, tab2, tab3 = st.tabs(
-    ["📊 DASHBOARD", "⚙️ CONFIGURAÇÃO SCRIPT", "🔐 API CONNECTION"]
-)
 
-# ================= TAB 1 =================
-with tab1:
-    c1, c2, c3 = st.columns([1, 1, 2])
+    # TABS
+    tab1, tab2, tab3 = st.tabs(
+        ["📊 DASHBOARD", "⚙️ CONFIGURAÇÃO SCRIPT", "🔐 API CONNECTION"]
+    )
 
-    with c1:
-        st.markdown(
-            "<div class='product-card'><small>BANCA ATUAL (USDT)</small><br><b>$ 10.250</b></div>",
-            unsafe_allow_html=True
-        )
+    # ================= TAB 1 =================
+    with tab1:
+        c1, c2, c3 = st.columns([1, 1, 2])
 
-    with c2:
-        st.markdown(
-            f"<div class='product-card'><small>LUCRO HOJE</small><br>"
-            f"<span style='color:#00ff88;font-size:20px;'>+ $ {st.session_state.lucro_acumulado}</span></div>",
-            unsafe_allow_html=True
-        )
+        with c1:
+            st.markdown(
+                "<div class='product-card'><small>BANCA ATUAL (USDT)</small><br><b>$ 10.250</b></div>",
+                unsafe_allow_html=True
+            )
 
-    with c3:
-        pct = min(
-            st.session_state.lucro_acumulado / st.session_state.meta_diaria,
-            1.0
-        )
-        st.markdown("<div class='product-card'>", unsafe_allow_html=True)
-        st.markdown(
-            f"<small>PROGRESSO META DIÁRIA ($ {st.session_state.meta_diaria})</small>",
-            unsafe_allow_html=True
-        )
-        st.progress(pct)
-        st.markdown(
-            f"<p style='text-align:right;font-size:11px;color:#00bcd4;'>"
-            f"{pct*100:.1f}% CONCLUÍDO</p>",
-            unsafe_allow_html=True
-        )
-        st.markdown("</div>", unsafe_allow_html=True)
+        with c2:
+            st.markdown(
+                f"<div class='product-card'><small>LUCRO HOJE</small><br>"
+                f"<span style='color:#00ff88;font-size:20px;'>+ $ {st.session_state.lucro_acumulado}</span></div>",
+                unsafe_allow_html=True
+            )
 
-    # ===== GRÁFICO REAL =====
-    st.markdown("<div class='product-card'>", unsafe_allow_html=True)
-    st.markdown("<small>LIVE CHART (TradingView)</small>", unsafe_allow_html=True)
+        with c3:
+            pct = min(
+                st.session_state.lucro_acumulado / st.session_state.meta_diaria,
+                1.0
+            )
+            st.markdown("<div class='product-card'>", unsafe_allow_html=True)
+            st.markdown(
+                f"<small>PROGRESSO META DIÁRIA ($ {st.session_state.meta_diaria})</small>",
+                unsafe_allow_html=True
+            )
+            st.progress(pct)
+            st.markdown(
+                f"<p style='text-align:right;font-size:11px;color:#00bcd4;'>{pct*100:.1f}% CONCLUÍDO</p>",
+                unsafe_allow_html=True
+            )
+            st.markdown("</div>", unsafe_allow_html=True)
 
-    st.components.v1.html("""
-    <div class="tradingview-widget-container">
-      <div id="tradingview_crow"></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-      <script type="text/javascript">
-      new TradingView.widget({
-        "width": "100%",
-        "height": 420,
-        "symbol": "BINANCE:BTCUSDT",
-        "interval": "1",
-        "timezone": "Etc/UTC",
-        "theme": "dark",
-        "style": "1",
-        "locale": "br",
-        "toolbar_bg": "#0b1016",
-        "hide_top_toolbar": false,
-        "allow_symbol_change": true,
-        "container_id": "tradingview_crow"
-      });
-      </script>
-    </div>
-    """, height=420)
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # ===== CONSOLE =====
-    st.markdown("<div class='product-card'>", unsafe_allow_html=True)
-    st.markdown("<small>LOG DE EXECUÇÃO</small>", unsafe_allow_html=True)
-    st.code(f"""
->>> [OK] API conectada
->>> [SCAN] EMA 9 / 21
->>> [INFO] RSI aguardando nível {st.session_state.rsi_val}
->>> [{datetime.now().strftime('%H:%M:%S')}] Monitorando mercado
-    """, language="bash")
-    st.button("🚀 LIGAR ROBÔ", use_container_width=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-# ================= TAB 2 =================
-with tab2:
-    st.markdown("<div class='product-card'>", unsafe_allow_html=True)
-    st.markdown("### 🛠️ Parâmetros do Robô (Script Termux)")
-
-    c1, c2 = st.columns(2)
-
-    with c1:
-        st.markdown("<p class='config-label'>Gatilho RSI</p>", unsafe_allow_html=True)
-        st.markdown(
-            "<p class='instruction-text'>Quando o RSI atinge esse valor, "
-            "o robô entende que o ativo está sobrevendido.</p>",
-            unsafe_allow_html=True
-        )
-        st.session_state.rsi_val = st.slider(
-            "RSI", 10, 50, st.session_state.rsi_val
-        )
-
-        st.markdown("<br><p class='config-label'>Stop Loss Automático (%)</p>",
-                    unsafe_allow_html=True)
-        st.markdown(
-            "<p class='instruction-text'>Protege sua banca encerrando a operação "
-            "se o preço cair além do limite.</p>",
-            unsafe_allow_html=True
-        )
-        st.number_input("Stop Loss", 0.5, 5.0, 1.5)
-
-    with c2:
-        st.markdown("<p class='config-label'>Meta de Lucro Diário ($)</p>",
-                    unsafe_allow_html=True)
-        st.markdown(
-            "<p class='instruction-text'>Ao atingir esse lucro diário, "
-            "o robô para automaticamente.</p>",
-            unsafe_allow_html=True
-        )
-        st.session_state.meta_diaria = st.number_input(
-            "Meta diária", 10.0, 5000.0, float(st.session_state.meta_diaria)
-        )
-
-        st.markdown("<br><p class='config-label'>Cruzamento de Médias (EMA)</p>",
-                    unsafe_allow_html=True)
-        st.markdown(
-            "<p class='instruction-text'>Entradas quando a média curta cruza "
-            "a média longa.</p>",
-            unsafe_allow_html=True
-        )
-        st.selectbox(
-            "Médias",
-            ["9 / 21 (Recomendado)", "20 / 50", "50 / 200"]
-        )
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-# ================= TAB 3 =================
-with tab3:
-    st.markdown("<div class='product-card'>", unsafe_allow_html=True)
-    st.info("Suas chaves ficam protegidas.")
-    st.text_input("API KEY BINANCE", type="password")
-    st.text_input("SECRET KEY BINANCE", type="password")
-    st.button("VINCULAR E TESTAR CONEXÃO")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-        # CHART (PLACEHOLDER)
+        # GRÁFICO REAL
         st.markdown("<div class='product-card'>", unsafe_allow_html=True)
         st.markdown("<small>LIVE CHART (TradingView)</small>", unsafe_allow_html=True)
+
         st.components.v1.html("""
-<div class="tradingview-widget-container">
-  <div id="tradingview_crow"></div>
-  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-  <script type="text/javascript">
-  new TradingView.widget({
-    "width": "100%",
-    "height": 420,
-    "symbol": "BINANCE:BTCUSDT",
-    "interval": "1",
-    "timezone": "Etc/UTC",
-    "theme": "dark",
-    "style": "1",
-    "locale": "br",
-    "toolbar_bg": "#0b1016",
-    "hide_top_toolbar": false,
-    "allow_symbol_change": true,
-    "container_id": "tradingview_crow"
-  });
-  </script>
-</div>
-""", height=420)
+        <div class="tradingview-widget-container">
+          <div id="tradingview_crow"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+          <script type="text/javascript">
+          new TradingView.widget({
+            "width": "100%",
+            "height": 420,
+            "symbol": "BINANCE:BTCUSDT",
+            "interval": "1",
+            "timezone": "Etc/UTC",
+            "theme": "dark",
+            "style": "1",
+            "locale": "br",
+            "toolbar_bg": "#0b1016",
+            "hide_top_toolbar": false,
+            "allow_symbol_change": true,
+            "container_id": "tradingview_crow"
+          });
+          </script>
+        </div>
+        """, height=420)
+
         st.markdown("</div>", unsafe_allow_html=True)
 
         # CONSOLE
@@ -352,51 +246,57 @@ with tab3:
         st.markdown("</div>", unsafe_allow_html=True)
 
     # ================= TAB 2 =================
-  with tab2:
-    st.markdown("<div class='product-card'>", unsafe_allow_html=True)
-    st.markdown("### 🛠️ Parâmetros do Robô (Script Termux)")
+    with tab2:
+        st.markdown("<div class='product-card'>", unsafe_allow_html=True)
+        st.markdown("### 🛠️ Parâmetros do Robô (Script Termux)")
 
-    c1, c2 = st.columns(2)
+        c1, c2 = st.columns(2)
 
-    with c1:
-        st.markdown("<p class='config-label'>Gatilho RSI</p>", unsafe_allow_html=True)
-        st.markdown(
-            "<p class='instruction-text'>Quando o RSI atinge esse valor, o robô entende que o ativo está sobrevendido.</p>",
-            unsafe_allow_html=True
-        )
-        st.session_state.rsi_val = st.slider("RSI", 10, 50, st.session_state.rsi_val)
+        with c1:
+            st.markdown("<p class='config-label'>Gatilho RSI</p>", unsafe_allow_html=True)
+            st.markdown(
+                "<p class='instruction-text'>Quando o RSI atinge esse valor, "
+                "o robô entende que o ativo está sobrevendido.</p>",
+                unsafe_allow_html=True
+            )
+            st.session_state.rsi_val = st.slider(
+                "RSI", 10, 50, st.session_state.rsi_val
+            )
 
-        st.markdown("<br><p class='config-label'>Stop Loss Automático (%)</p>", unsafe_allow_html=True)
-        st.markdown(
-            "<p class='instruction-text'>Protege sua banca encerrando a operação se o preço cair além do limite.</p>",
-            unsafe_allow_html=True
-        )
-        st.number_input("Stop Loss", 0.5, 5.0, 1.5)
+            st.markdown("<br><p class='config-label'>Stop Loss Automático (%)</p>",
+                        unsafe_allow_html=True)
+            st.markdown(
+                "<p class='instruction-text'>Protege sua banca encerrando a operação "
+                "se o preço cair além do limite.</p>",
+                unsafe_allow_html=True
+            )
+            st.number_input("Stop Loss", 0.5, 5.0, 1.5)
 
-    with c2:
-        st.markdown("<p class='config-label'>Meta de Lucro Diário ($)</p>", unsafe_allow_html=True)
-        st.markdown(
-            "<p class='instruction-text'>Ao atingir esse lucro diário, o robô para automaticamente.</p>",
-            unsafe_allow_html=True
-        )
-        st.session_state.meta_diaria = st.number_input(
-            "Meta diária",
-            10.0,
-            5000.0,
-            float(st.session_state.meta_diaria)
-        )
+        with c2:
+            st.markdown("<p class='config-label'>Meta de Lucro Diário ($)</p>",
+                        unsafe_allow_html=True)
+            st.markdown(
+                "<p class='instruction-text'>Ao atingir esse lucro diário, "
+                "o robô para automaticamente.</p>",
+                unsafe_allow_html=True
+            )
+            st.session_state.meta_diaria = st.number_input(
+                "Meta diária", 10.0, 5000.0, float(st.session_state.meta_diaria)
+            )
 
-        st.markdown("<br><p class='config-label'>Cruzamento de Médias (EMA)</p>", unsafe_allow_html=True)
-        st.markdown(
-            "<p class='instruction-text'>O robô busca entradas quando a média curta cruza a média longa.</p>",
-            unsafe_allow_html=True
-        )
-        st.selectbox(
-            "Médias",
-            ["9 / 21 (Recomendado)", "20 / 50", "50 / 200"]
-        )
+            st.markdown("<br><p class='config-label'>Cruzamento de Médias (EMA)</p>",
+                        unsafe_allow_html=True)
+            st.markdown(
+                "<p class='instruction-text'>Entradas quando a média curta cruza "
+                "a média longa.</p>",
+                unsafe_allow_html=True
+            )
+            st.selectbox(
+                "Médias",
+                ["9 / 21 (Recomendado)", "20 / 50", "50 / 200"]
+            )
 
-    st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
     # ================= TAB 3 =================
     with tab3:
