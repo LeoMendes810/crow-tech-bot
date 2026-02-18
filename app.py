@@ -1,10 +1,12 @@
 import streamlit as st
 import base64
 import pandas as pd
+import plotly.graph_objects as go
 from datetime import datetime
+import time
 
-# 1. Configuração de Elite (Foco Operacional)
-st.set_page_config(page_title="Crow Tech Elite - C18.9.1.5", layout="wide")
+# 1. CONFIGURAÇÃO DE PRODUTO (SAAS)
+st.set_page_config(page_title="Crow Tech Elite Portal", layout="wide", initial_sidebar_state="collapsed")
 
 def get_base64(bin_file):
     try:
@@ -16,99 +18,129 @@ def get_base64(bin_file):
 bg_base64 = get_base64('assets/corvo_bg.png')
 logo_base64 = get_base64('assets/logo.png')
 
-# --- CSS OPERACIONAL (Focado em Dados Reais) ---
+# --- CSS DE NÍVEL EMPRESARIAL ---
 st.markdown(f"""
     <style>
     header, footer, .stDeployButton, [data-testid="stHeader"] {{ visibility: hidden !important; }}
+    
     .stApp {{
         background: #0b1016 url(data:image/png;base64,{bg_base64}) no-repeat center !important;
-        background-size: 30% !important;
+        background-size: 25% !important;
         background-attachment: fixed !important;
     }}
-    /* Estilo Terminal/Log */
-    .stCodeBlock {{
-        background-color: rgba(0, 0, 0, 0.8) !important;
-        border: 1px solid #00bcd4 !important;
-        border-radius: 5px;
-    }}
-    .stat-card {{
-        background: rgba(255, 255, 255, 0.05);
+
+    /* Estilo de Cartões de Produto */
+    .product-card {{
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 15px;
-        border-radius: 10px;
-        text-align: center;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }}
+
+    .status-online {{ color: #00ff88; font-weight: bold; }}
+    .metric-label {{ color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }}
+    .metric-value {{ color: white; font-size: 24px; font-weight: bold; }}
     </style>
 """, unsafe_allow_html=True)
 
+# --- SISTEMA DE NAVEGAÇÃO ---
 if 'logado' not in st.session_state: st.session_state.logado = False
+if 'bot_ativo' not in st.session_state: st.session_state.bot_ativo = False
 
 if not st.session_state.logado:
-    # (Mantemos seu Login que já funciona)
-    with st.form("login_crow"):
-        st.markdown(f'<div style="text-align:center"><img src="data:image/png;base64,{logo_base64}" width="160"></div>', unsafe_allow_html=True)
-        u = st.text_input("USUÁRIO")
-        p = st.text_input("SENHA", type="password")
-        if st.form_submit_button("ACESSAR TERMINAL"):
-            if u == "admin" and p == "crow123":
-                st.session_state.logado = True
-                st.rerun()
+    # (Interface de Login Profissional que travamos antes)
+    with st.container():
+        _, center, _ = st.columns([1, 1, 1])
+        with center:
+            st.markdown(f'<div style="text-align:center; margin-top:100px;"><img src="data:image/png;base64,{logo_base64}" width="200"></div>', unsafe_allow_html=True)
+            with st.form("login"):
+                u = st.text_input("ACCESS KEY")
+                p = st.text_input("SECRET", type="password")
+                if st.form_submit_button("VALIDATE LICENSE"):
+                    if u == "admin" and p == "crow123":
+                        st.session_state.logado = True
+                        st.rerun()
 else:
-    # --- INTERFACE DO BOT (ESTILO TERMINAL AVANÇADO) ---
-    c1, c2, c3 = st.columns([1, 4, 1])
-    with c1: st.image(f"data:image/png;base64,{logo_base64}", width=80)
-    with c2: st.markdown("<h2 style='color:#00bcd4;'>CROW TECH ELITE <span style='color:white; font-size:14px;'>v.C18.9.1.5</span></h2>", unsafe_allow_html=True)
-    with c3: 
-        if st.button("LOGOUT"): 
+    # --- DASHBOARD PROFISSIONAL C18.9.1.5 ---
+    
+    # Header minimalista
+    h1, h2, h3 = st.columns([1, 3, 1])
+    with h1: st.image(f"data:image/png;base64,{logo_base64}", width=80)
+    with h2: st.markdown("<h2 style='text-align:center; color:white; margin-top:10px;'>CROW TECH <span style='color:#00bcd4;'>MANAGEMENT CONSOLE</span></h2>", unsafe_allow_html=True)
+    with h3: 
+        if st.button("LOGOUT / LOCK"): 
             st.session_state.logado = False
             st.rerun()
 
-    # Painel de Controle de Operação
-    st.markdown("### 🕹️ Centro de Comando")
-    col_ctrl1, col_ctrl2, col_ctrl3 = st.columns(3)
-    with col_ctrl1:
-        st.button("🚀 INICIAR BOT (TERMUX)", use_container_width=True)
-    with col_ctrl2:
-        st.button("🛑 PARAR OPERAÇÕES", use_container_width=True)
-    with col_ctrl3:
-        st.button("🔄 REINICIAR API", use_container_width=True)
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    st.markdown("---")
+    # Sidebar para Configurações (Migrando as funções do Termux para inputs)
+    with st.sidebar:
+        st.markdown("### ⚙️ CONFIGURAÇÕES DO SCRIPT")
+        par_trade = st.selectbox("Par de Negociação", ["BTC/USDT", "ETH/USDT", "SOL/USDT"])
+        rsi_limit = st.slider("Gatilho RSI (Compra)", 10, 50, 30)
+        stop_loss = st.number_input("Stop Loss (%)", 0.1, 5.0, 1.5)
+        st.markdown("---")
+        st.info("Estas alterações são aplicadas instantaneamente ao script em execução.")
 
-    # Área de Dados Reais
-    col_info, col_log = st.columns([1, 2])
+    # Grid Principal
+    col_stats, col_main = st.columns([1, 2.5])
 
-    with col_info:
-        st.markdown("#### 💎 Status da Carteira")
-        st.markdown('<div class="stat-card"><b>Saldo em Moedas</b><br><span style="color:#00bcd4; font-size:20px;">0.185 BTC</span></div>', unsafe_allow_html=True)
-        st.markdown('<br>', unsafe_allow_html=True)
-        st.markdown('<div class="stat-card"><b>Saldo em Dólar</b><br><span style="color:#00ff88; font-size:20px;">$ 4,150.00</span></div>', unsafe_allow_html=True)
+    with col_stats:
+        # Status da Operação
+        st.markdown(f"""
+            <div class="product-card">
+                <p class="metric-label">Server Status</p>
+                <p class="status-online">● CLOUD ACTIVE</p>
+                <hr style="opacity:0.1">
+                <p class="metric-label">Current Balance</p>
+                <p class="metric-value">$ 10,250.00</p>
+                <p style="color:#00ff88; font-size:12px;">+2.4% today</p>
+            </div>
+        """, unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
         
-        st.markdown("#### ⚙️ Parâmetros Atuais")
-        st.write(f"RSI Referência: **30/70**")
-        st.write(f"EMA Referência: **9 / 21 / 50**")
-        st.write(f"Stop Loss: **1.5%**")
+        # Controle de Ligar/Desligar (Aqui é onde o script do Termux recebe a ordem)
+        st.markdown('<div class="product-card">', unsafe_allow_html=True)
+        st.markdown("<p class="metric-label">Execution Control</p>", unsafe_allow_html=True)
+        if not st.session_state.bot_ativo:
+            if st.button("▶ START ENGINE", use_container_width=True):
+                st.session_state.bot_ativo = True
+                st.rerun()
+        else:
+            if st.button("🛑 STOP ENGINE", use_container_width=True):
+                st.session_state.bot_ativo = False
+                st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    with col_log:
-        st.markdown("#### 🖥️ Saída do Console (Real-time)")
-        # Simulando a tela do Termux aqui dentro
-        st.code(f"""
->>> [INFO] Crow Tech C18.9.1.5 iniciado...
->>> [API] Conectando à Wallet... OK
->>> [DATA] Buscando RSI e EMA para BTC/USDT...
->>> [ANALYSIS] EMA 9 (51400) > EMA 21 (51250) -> TENDÊNCIA DE ALTA
->>> [BOT] Aguardando sinal de entrada RSI < 30...
->>> [LOG] Latência de rede: 12ms
->>> [{datetime.now().strftime('%H:%M:%S')}] Monitorando ativos da lista...
-        """, language="bash")
+    with col_main:
+        # Gráfico de Desempenho (SaaS Style)
+        st.markdown('<div class="product-card">', unsafe_allow_html=True)
+        st.markdown(f"<p class='metric-label'>Real-time Analysis: {par_trade}</p>", unsafe_allow_html=True)
+        
+        # Simulação de dados para o gráfico
+        df = pd.DataFrame({'T': range(20), 'V': [50 + (i * 0.5) + (i % 3) for i in range(20)]})
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=df['T'], y=df['V'], fill='tozeroy', line_color='#00bcd4'))
+        fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
+                          height=250, margin=dict(l=0,r=0,t=0,b=0), xaxis_visible=False)
+        st.plotly_chart(fig, use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("---")
-    st.markdown("#### 📋 Lista de Ativos do Bot")
-    # Tabela simples e limpa, como no seu script
-    df_ativos = pd.DataFrame({
-        "Par": ["BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT"],
-        "Preço": ["$ 51,420", "$ 2,750", "$ 110", "$ 380"],
-        "Tendência": ["ALTA", "NEUTRA", "BAIXA", "ALTA"],
-        "Sinal": ["AGUARDAR", "ANALISANDO", "VENDA", "COMPRA"]
-    })
-    st.dataframe(df_ativos, use_container_width=True)
+    # LOG DE CONSOLE (A essência do Termux migrada para o Web)
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown('<div class="product-card">', unsafe_allow_html=True)
+    st.markdown("<p class='metric-label'>System Terminal Output</p>", unsafe_allow_html=True)
+    
+    status_msg = "Bot Aguardando comando..." if not st.session_state.bot_ativo else "Bot em Execução..."
+    st.code(f"""
+    >>> [SYS] Initializing Crow Tech C18.9.1.5 Engine...
+    >>> [AUTH] License Verified: ELITE_PLAN_ACTIVE
+    >>> [STATUS] {status_msg}
+    >>> [DATA] Fetching market data for {par_trade}
+    >>> [LOG] RSI: 42.1 | EMA9: 51200 | EMA21: 51100
+    >>> [LOG] {datetime.now().strftime('%H:%M:%S')} - Scanning for entry signals...
+    """, language="bash")
+    st.markdown('</div>', unsafe_allow_html=True)
