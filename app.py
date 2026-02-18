@@ -2,120 +2,221 @@ import streamlit as st
 import base64
 from datetime import datetime
 
-# 1. Configuração da página (Mantida do seu Login.txt)
-st.set_page_config(page_title="Crow Tech Elite", layout="wide")
+# ======================================================
+# CONFIGURAÇÃO DA PÁGINA
+# ======================================================
+st.set_page_config(page_title="Crow Tech Elite Portal", layout="wide")
 
-def get_base64(bin_file):
+# ======================================================
+# FUNÇÕES UTILITÁRIAS
+# ======================================================
+def get_base64(path):
     try:
-        with open(bin_file, 'rb') as f:
-            data = f.read()
-        return base64.b64encode(data).decode()
-    except: return ""
+        with open(path, "rb") as f:
+            return base64.b64encode(f.read()).decode()
+    except:
+        return ""
 
-bg_base64 = get_base64('assets/corvo_bg.png')
-logo_base64 = get_base64('assets/logo.png')
+bg_base64 = get_base64("assets/corvo_bg.png")
+logo_base64 = get_base64("assets/logo.png")
 
-# --- ESTADO DE LOGIN ---
-if 'logado' not in st.session_state:
+# ======================================================
+# SESSION STATE
+# ======================================================
+if "logado" not in st.session_state:
     st.session_state.logado = False
-if 'meta_diaria' not in st.session_state:
+
+if "meta_diaria" not in st.session_state:
     st.session_state.meta_diaria = 100.0
 
-# --- TELA DE LOGIN (INTEGRAÇÃO FIEL DO SEU LOGIN.TXT) ---
-if not st.session_state.logado:
+if "lucro_acumulado" not in st.session_state:
+    st.session_state.lucro_acumulado = 42.50
+
+# ======================================================
+# CSS GLOBAL
+# ======================================================
+def css_global():
     st.markdown(f"""
-        <style>
-        header, footer, .stDeployButton, [data-testid="stHeader"] {{ visibility: hidden !important; }}
-        .stApp {{
-            background: #0b1016 url(data:image/png;base64,{bg_base64}) no-repeat center !important;
-            background-size: 50% !important;
-            background-attachment: fixed !important;
-        }}
-        [data-testid="stForm"] {{
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 360px; background: rgba(255, 255, 255, 0.95) !important;
-            border-radius: 20px; padding: 30px !important; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-        }}
-        .stTextInput input {{ background-color: transparent !important; color: black !important; border: none !important; border-bottom: 1px solid rgba(0,0,0,0.2) !important; }}
-        .link-text {{ color: #008b8b; font-size: 11px; cursor: pointer; font-weight: bold; }}
-        div.stButton > button {{ background-color: #000000 !important; color: white !important; border-radius: 10px !important; width: 100%; }}
-        </style>
+    <style>
+    header, footer, .stDeployButton, [data-testid="stHeader"] {{
+        visibility: hidden !important;
+    }}
+
+    .stApp {{
+        background: #0b1016 url(data:image/png;base64,{bg_base64}) no-repeat center;
+        background-size: 30%;
+        background-attachment: fixed;
+    }}
+
+    .product-card {{
+        background: rgba(10,15,20,0.8);
+        border: 1px solid rgba(0,188,212,0.25);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 12px;
+    }}
+
+    .config-label {{
+        color: #00bcd4;
+        font-weight: bold;
+        font-size: 14px;
+    }}
+
+    .instruction-text {{
+        color: white;
+        font-size: 12px;
+        opacity: 0.8;
+    }}
+
+    .stCodeBlock {{
+        background-color: #000 !important;
+        border: 1px solid #00bcd4 !important;
+    }}
+
+    code {{
+        color: #00ff88 !important;
+    }}
+    </style>
     """, unsafe_allow_html=True)
 
-    with st.form("login_form"):
-        st.markdown(f"""
-            <div style="text-align: center;">
-                <img src="data:image/png;base64,{logo_base64}" width="160">
-                <p style="color: #000; font-size: 9px; letter-spacing: 2px; font-weight: 900; margin-top: -10px;">CROW TECH ELITE</p>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        usuario = st.text_input("USUÁRIO", placeholder="Username")
-        senha = st.text_input("SENHA", type="password", placeholder="Password")
-        st.markdown('<div style="display: flex; justify-content: flex-end; margin-top: -15px;"><span class="link-text">Esqueceu a senha?</span></div>', unsafe_allow_html=True)
-        
+# ======================================================
+# LOGIN
+# ======================================================
+def render_login():
+    css_global()
+
+    st.markdown(f"""
+    <style>
+    [data-testid="stForm"] {{
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 360px;
+        background: rgba(255,255,255,0.12);
+        backdrop-filter: blur(25px);
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    }}
+
+    .stTextInput input {{
+        background: rgba(255,255,255,0.75);
+        color: black !important;
+        font-weight: bold;
+        border-bottom: 2px solid #00bcd4;
+    }}
+
+    .stButton > button {{
+        background: #00bcd4;
+        color: black;
+        font-weight: 900;
+        width: 100%;
+        height: 45px;
+        margin-top: 10px;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
+    with st.form("login"):
+        st.markdown(
+            f"<div style='text-align:center'><img src='data:image/png;base64,{logo_base64}' width='150'></div>",
+            unsafe_allow_html=True
+        )
+
+        user = st.text_input("USUÁRIO")
+        pwd = st.text_input("SENHA", type="password")
+
         if st.form_submit_button("ACESSAR SISTEMA"):
-            if usuario == "admin" and senha == "crow123":
+            if user == "admin" and pwd == "crow123":
                 st.session_state.logado = True
                 st.rerun()
             else:
-                st.error("Acesso negado")
+                st.error("Credenciais inválidas")
 
-# --- DASHBOARD (INTEGRAÇÃO FIEL DO SEU DASHBOARD.TXT) ---
-else:
-    st.markdown(f"""
-        <style>
-        header, footer, .stDeployButton, [data-testid="stHeader"] {{ visibility: hidden !important; }}
-        .stApp {{
-            background: #0b1016 url(data:image/png;base64,{bg_base64}) no-repeat center !important;
-            background-size: 20% !important;
-        }}
-        .product-card {{ background: rgba(10, 15, 20, 0.8) !important; border: 1px solid rgba(0, 188, 212, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 15px; color: white; }}
-        .header-box {{ text-align: right; }}
-        .main-title {{ color: white; font-size: 32px; font-weight: 900; margin: 0; }}
-        .sub-title {{ color: #00bcd4; font-size: 14px; font-weight: bold; margin: 0; }}
-        .slogan {{ color: rgba(255,255,255,0.4); font-size: 11px; font-style: italic; }}
-        /* Ajuste para remover fundo branco do console e inputs no dashboard */
-        .stCodeBlock, div[data-testid="stCodeBlock"] pre {{ background-color: #000 !important; border: 1px solid #00bcd4; }}
-        div[data-testid="stNumberInput"] input, div[data-testid="stTextInput"] input {{ background-color: #000 !important; color: white !important; }}
-        </style>
-    """, unsafe_allow_html=True)
+# ======================================================
+# DASHBOARD
+# ======================================================
+def render_dashboard():
+    css_global()
 
-    # Header Crow Tech
-    c1, c2 = st.columns([1, 3])
-    with c1: st.image(f"data:image/png;base64,{logo_base64}", width=100)
+    # HEADER
+    c1, c2, c3 = st.columns([1,4,1])
+    with c1:
+        st.image(f"data:image/png;base64,{logo_base64}", width=70)
     with c2:
-        st.markdown(f"""<div class="header-box">
-            <p class="main-title">CROW TECH</p>
-            <p class="sub-title">PORTAL ELITE</p>
-            <p class="slogan">Inteligência em cada movimento</p>
-        </div>""", unsafe_allow_html=True)
-
-    tab1, tab2, tab3 = st.tabs(["📊 DASHBOARD", "⚙️ CONFIGURAÇÃO", "🔐 API"])
-
-    with tab1:
-        col_a, col_b, col_c = st.columns([1, 1, 2])
-        col_a.markdown('<div class="product-card"><small>BANCA TOTAL</small><br><b>$ 10.250,00</b></div>', unsafe_allow_html=True)
-        col_b.markdown('<div class="product-card"><small>LUCRO HOJE</small><br><b style="color:#00ff88;">+ $ 42,50</b></div>', unsafe_allow_html=True)
-        with col_c:
-            st.markdown('<div class="product-card">', unsafe_allow_html=True)
-            st.markdown(f"<small style='color:#00bcd4; font-weight:bold;'>META DIÁRIA: $ {st.session_state.meta_diaria}</small>", unsafe_allow_html=True)
-            st.progress(0.42)
-            st.markdown('</div>', unsafe_allow_html=True)
-
-        st.markdown('<div class="product-card">', unsafe_allow_html=True)
-        st.components.v1.html("""<div style="height:400px;"><script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-            <script type="text/javascript">new TradingView.widget({"width": "100%", "height": 400, "symbol": "BINANCE:BTCUSDT", "theme": "dark", "style": "1"});</script></div>""", height=400)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-        st.code(f">>> [SISTEMA] Crow Tech Online\n>>> [ESTRATÉGIA] EMA 20 Ativa\n>>> [{datetime.now().strftime('%H:%M:%S')}] Monitorando sinais...")
-        
+        st.markdown(
+            "<h2 style='text-align:center;color:white'>CROW TECH <span style='color:#00bcd4'>PORTAL ELITE</span></h2>",
+            unsafe_allow_html=True
+        )
+    with c3:
         if st.button("SAIR"):
             st.session_state.logado = False
             st.rerun()
 
+    tab1, tab2, tab3 = st.tabs(["📊 DASHBOARD", "⚙️ CONFIGURAÇÕES", "🔐 API"])
+
+    # ================= TAB 1 =================
+    with tab1:
+        col1, col2, col3 = st.columns([1,1,2])
+
+        with col1:
+            st.markdown(
+                "<div class='product-card'><small>BANCA</small><br><b>$10.250</b></div>",
+                unsafe_allow_html=True
+            )
+
+        with col2:
+            st.markdown(
+                f"<div class='product-card'><small>LUCRO HOJE</small><br><span style='color:#00ff88'>+ ${st.session_state.lucro_acumulado}</span></div>",
+                unsafe_allow_html=True
+            )
+
+        with col3:
+            pct = min(st.session_state.lucro_acumulado / st.session_state.meta_diaria, 1.0)
+            st.markdown("<div class='product-card'>", unsafe_allow_html=True)
+            st.markdown(f"<small>META DIÁRIA (${st.session_state.meta_diaria})</small>", unsafe_allow_html=True)
+            st.progress(pct)
+            st.markdown(f"<small>{pct*100:.1f}% concluído</small>", unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        st.markdown("<div class='product-card'>", unsafe_allow_html=True)
+        st.markdown("<small>LOG DE EXECUÇÃO</small>", unsafe_allow_html=True)
+        st.code(f"""
+>>> API conectada
+>>> Analisando EMA 9 / 21
+>>> RSI aguardando nível configurado
+>>> [{datetime.now().strftime('%H:%M:%S')}] Monitorando mercado
+        """, language="bash")
+        st.button("🚀 LIGAR ROBÔ", use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # ================= TAB 2 =================
     with tab2:
-        st.markdown('<div class="product-card">', unsafe_allow_html=True)
-        st.session_state.meta_diaria = st.number_input("Meta de Lucro Diário ($)", value=float(st.session_state.meta_diaria))
-        st.text_input("Configuração", value="EMA 20 (Nativa)", disabled=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("<div class='product-card'>", unsafe_allow_html=True)
+
+        st.markdown("<p class='config-label'>RSI</p>", unsafe_allow_html=True)
+        st.session_state.rsi_val = st.slider("RSI", 10, 50, 30)
+
+        st.markdown("<p class='config-label'>Meta Diária ($)</p>", unsafe_allow_html=True)
+        st.session_state.meta_diaria = st.number_input(
+            "Meta", 10.0, 5000.0, st.session_state.meta_diaria
+        )
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # ================= TAB 3 =================
+    with tab3:
+        st.markdown("<div class='product-card'>", unsafe_allow_html=True)
+        st.text_input("API KEY", type="password")
+        st.text_input("SECRET KEY", type="password")
+        st.button("TESTAR CONEXÃO")
+        st.markdown("</div>", unsafe_allow_html=True)
+
+# ======================================================
+# RENDER
+# ======================================================
+if st.session_state.logado:
+    render_dashboard()
+else:
+    render_login()
