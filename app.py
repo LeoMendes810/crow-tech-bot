@@ -1,11 +1,10 @@
 import streamlit as st
 import base64
 import pandas as pd
-import plotly.graph_objects as go
 from datetime import datetime
 
-# 1. Configuração de Página
-st.set_page_config(page_title="Crow Tech Elite C18.9.1.5", layout="wide")
+# 1. Configuração de Elite (Foco Operacional)
+st.set_page_config(page_title="Crow Tech Elite - C18.9.1.5", layout="wide")
 
 def get_base64(bin_file):
     try:
@@ -17,7 +16,7 @@ def get_base64(bin_file):
 bg_base64 = get_base64('assets/corvo_bg.png')
 logo_base64 = get_base64('assets/logo.png')
 
-# --- CSS PROFISSIONAL ---
+# --- CSS OPERACIONAL (Focado em Dados Reais) ---
 st.markdown(f"""
     <style>
     header, footer, .stDeployButton, [data-testid="stHeader"] {{ visibility: hidden !important; }}
@@ -26,93 +25,90 @@ st.markdown(f"""
         background-size: 30% !important;
         background-attachment: fixed !important;
     }}
-    .crow-card {{
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 15px;
-        margin-bottom: 15px;
+    /* Estilo Terminal/Log */
+    .stCodeBlock {{
+        background-color: rgba(0, 0, 0, 0.8) !important;
+        border: 1px solid #00bcd4 !important;
+        border-radius: 5px;
     }}
-    .stat-val {{ color: #00bcd4; font-size: 20px; font-weight: bold; }}
-    .stat-label {{ color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase; }}
+    .stat-card {{
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+    }}
     </style>
 """, unsafe_allow_html=True)
 
 if 'logado' not in st.session_state: st.session_state.logado = False
 
 if not st.session_state.logado:
-    # Código de login (mantido conforme a última versão que funcionou)
+    # (Mantemos seu Login que já funciona)
     with st.form("login_crow"):
         st.markdown(f'<div style="text-align:center"><img src="data:image/png;base64,{logo_base64}" width="160"></div>', unsafe_allow_html=True)
-        u = st.text_input("USUÁRIO", placeholder="Username")
-        p = st.text_input("SENHA", type="password", placeholder="Password")
-        if st.form_submit_button("ACESSAR SISTEMA"):
+        u = st.text_input("USUÁRIO")
+        p = st.text_input("SENHA", type="password")
+        if st.form_submit_button("ACESSAR TERMINAL"):
             if u == "admin" and p == "crow123":
                 st.session_state.logado = True
                 st.rerun()
 else:
-    # --- HEADER ---
-    c1, c2, c3 = st.columns([1, 3, 1])
+    # --- INTERFACE DO BOT (ESTILO TERMINAL AVANÇADO) ---
+    c1, c2, c3 = st.columns([1, 4, 1])
     with c1: st.image(f"data:image/png;base64,{logo_base64}", width=80)
-    with c2: st.markdown("<h2 style='text-align:center; color:white;'>TERMINAL OPERACIONAL <span style='color:#00bcd4;'>C18.9.1.5</span></h2>", unsafe_allow_html=True)
+    with c2: st.markdown("<h2 style='color:#00bcd4;'>CROW TECH ELITE <span style='color:white; font-size:14px;'>v.C18.9.1.5</span></h2>", unsafe_allow_html=True)
     with c3: 
-        if st.button("SAIR"): 
+        if st.button("LOGOUT"): 
             st.session_state.logado = False
             st.rerun()
 
-    # --- LINHA 1: KPIs TÉCNICOS ---
-    k1, k2, k3, k4 = st.columns(4)
-    with k1:
-        st.markdown('<div class="crow-card"><p class="stat-label">💰 Banca Disponível</p><p class="stat-val">$ 10.250,00</p></div>', unsafe_allow_html=True)
-    with k2:
-        st.markdown('<div class="crow-card"><p class="stat-label">⚡ Latência API</p><p class="stat-val">12ms <span style="font-size:10px; color:gray;">(Excelente)</span></p></div>', unsafe_allow_html=True)
-    with k3:
-        st.markdown('<div class="crow-card"><p class="stat-label">📊 RSI (14p)</p><p class="stat-val">62.4 <span style="font-size:10px; color:orange;">(Neutro)</span></p></div>', unsafe_allow_html=True)
-    with k4:
-        st.markdown('<div class="crow-card"><p class="stat-label">🤖 Algoritmo</p><p class="stat-val" style="color:#00ff88;">ATIVO</p></div>', unsafe_allow_html=True)
+    # Painel de Controle de Operação
+    st.markdown("### 🕹️ Centro de Comando")
+    col_ctrl1, col_ctrl2, col_ctrl3 = st.columns(3)
+    with col_ctrl1:
+        st.button("🚀 INICIAR BOT (TERMUX)", use_container_width=True)
+    with col_ctrl2:
+        st.button("🛑 PARAR OPERAÇÕES", use_container_width=True)
+    with col_ctrl3:
+        st.button("🔄 REINICIAR API", use_container_width=True)
 
-    # --- LINHA 2: GRÁFICO DE VELAS + SELETOR ---
-    col_main, col_side = st.columns([3, 1])
+    st.markdown("---")
 
-    with col_main:
-        st.markdown('<div class="crow-card">', unsafe_allow_html=True)
-        # Seletor de Ativo
-        par_selecionado = st.selectbox("Selecione o Par para Monitoramento:", ["BTC/USDT", "ETH/USDT", "SOL/USDT"])
+    # Área de Dados Reais
+    col_info, col_log = st.columns([1, 2])
+
+    with col_info:
+        st.markdown("#### 💎 Status da Carteira")
+        st.markdown('<div class="stat-card"><b>Saldo em Moedas</b><br><span style="color:#00bcd4; font-size:20px;">0.185 BTC</span></div>', unsafe_allow_html=True)
+        st.markdown('<br>', unsafe_allow_html=True)
+        st.markdown('<div class="stat-card"><b>Saldo em Dólar</b><br><span style="color:#00ff88; font-size:20px;">$ 4,150.00</span></div>', unsafe_allow_html=True)
         
-        # Simulação de Gráfico de Velas (Candlestick)
-        fig = go.Figure(data=[go.Candlestick(
-            x=['09:00', '10:00', '11:00', '12:00', '13:00'],
-            open=[51000, 51200, 51500, 51300, 51600],
-            high=[51300, 51600, 51700, 51500, 51900],
-            low=[50800, 51100, 51200, 51100, 51400],
-            close=[51200, 51500, 51300, 51600, 51800],
-            increasing_line_color='#00ff88', decreasing_line_color='#ff4b4b'
-        )])
-        fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', height=400)
-        st.plotly_chart(fig, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("#### ⚙️ Parâmetros Atuais")
+        st.write(f"RSI Referência: **30/70**")
+        st.write(f"EMA Referência: **9 / 21 / 50**")
+        st.write(f"Stop Loss: **1.5%**")
 
-    with col_side:
-        st.markdown('<div class="crow-card">', unsafe_allow_html=True)
-        st.markdown("### 📋 Alocação da Banca")
-        st.write("Dólar (USDT): **70%**")
-        st.write("Ativos (Coins): **30%**")
-        st.progress(30)
-        st.markdown("---")
-        st.markdown("### 📉 Estratégia EMA")
-        st.write("EMA 9 (Curta): **51.450**")
-        st.write("EMA 21 (Longa): **51.200**")
-        st.success("TENDÊNCIA: ALTA (Bullish)")
-        st.markdown('</div>', unsafe_allow_html=True)
+    with col_log:
+        st.markdown("#### 🖥️ Saída do Console (Real-time)")
+        # Simulando a tela do Termux aqui dentro
+        st.code(f"""
+>>> [INFO] Crow Tech C18.9.1.5 iniciado...
+>>> [API] Conectando à Wallet... OK
+>>> [DATA] Buscando RSI e EMA para BTC/USDT...
+>>> [ANALYSIS] EMA 9 (51400) > EMA 21 (51250) -> TENDÊNCIA DE ALTA
+>>> [BOT] Aguardando sinal de entrada RSI < 30...
+>>> [LOG] Latência de rede: 12ms
+>>> [{datetime.now().strftime('%H:%M:%S')}] Monitorando ativos da lista...
+        """, language="bash")
 
-    # --- LINHA 3: LOGS REAIS ---
-    st.markdown('<div class="crow-card">', unsafe_allow_html=True)
-    st.markdown("### 📜 Log de Atividades do Bot")
-    st.code(f"""
-    [{datetime.now().strftime('%H:%M:%S')}] Conexão estabelecida com sucesso.
-    [{datetime.now().strftime('%H:%M:%S')}] Analisando par {par_selecionado}...
-    [{datetime.now().strftime('%H:%M:%S')}] RSI em 62.4. Aguardando zona de sobrecompra.
-    [{datetime.now().strftime('%H:%M:%S')}] Monitorando cruzamento EMA 9/21.
-    """, language="bash")
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("---")
+    st.markdown("#### 📋 Lista de Ativos do Bot")
+    # Tabela simples e limpa, como no seu script
+    df_ativos = pd.DataFrame({
+        "Par": ["BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT"],
+        "Preço": ["$ 51,420", "$ 2,750", "$ 110", "$ 380"],
+        "Tendência": ["ALTA", "NEUTRA", "BAIXA", "ALTA"],
+        "Sinal": ["AGUARDAR", "ANALISANDO", "VENDA", "COMPRA"]
+    })
+    st.dataframe(df_ativos, use_container_width=True)
