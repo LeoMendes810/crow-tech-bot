@@ -2,7 +2,7 @@ import streamlit as st
 import base64
 from datetime import datetime
 
-# 1. SETUP DE MARCA
+# 1. SETUP DE MARCA E CONFIGURAÇÃO DE PÁGINA
 st.set_page_config(page_title="Crow Tech Elite Portal", layout="wide")
 
 def get_base64(bin_file):
@@ -15,146 +15,152 @@ def get_base64(bin_file):
 bg_base64 = get_base64('assets/corvo_bg.png')
 logo_base64 = get_base64('assets/logo.png')
 
-# --- CSS DEFINITIVO (RESTAURADO E ESTABILIZADO) ---
+# --- CSS INTEGRADO: FUSÃO LOGIN (VIDRO) + DASHBOARD (DARK) ---
 st.markdown(f"""
     <style>
     header, footer, .stDeployButton, [data-testid="stHeader"] {{ visibility: hidden !important; }}
     
     .stApp {{
         background: #0b1016 url(data:image/png;base64,{bg_base64}) no-repeat center !important;
-        background-size: 20% !important;
+        background-size: 25% !important;
         background-attachment: fixed !important;
         color: white !important;
     }}
 
-    /* LOGIN CARD ORIGINAL */
-    .login-card {{
-        background: rgba(255, 255, 255, 0.05) !important;
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+    /* ESTILO DO LOGIN (VIDRO) */
+    [data-testid="stForm"] {{
+        background: rgba(255, 255, 255, 0.12) !important;
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
         border-radius: 20px;
-        padding: 40px;
-        text-align: center;
-        margin-top: 50px;
+        padding: 30px !important;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
     }}
+
+    /* INPUTS DO LOGIN (TEXTO VISÍVEL) */
+    .stTextInput input {{
+        background-color: rgba(255, 255, 255, 0.8) !important;
+        color: #000000 !important;
+        font-weight: bold !important;
+        border-bottom: 2px solid #00bcd4 !important;
+    }}
+    
+    label {{ color: white !important; font-weight: bold !important; }}
 
     /* CARDS DO DASHBOARD */
     .product-card {{
-        background: rgba(0, 0, 0, 0.8) !important;
-        border: 1px solid rgba(0, 188, 212, 0.3);
+        background: rgba(10, 15, 20, 0.85) !important;
+        border: 1px solid rgba(0, 188, 212, 0.2);
         border-radius: 12px;
         padding: 20px;
         margin-bottom: 10px;
     }}
 
-    /* CONSOLE PRETO ABSOLUTO (SEM FUNDO BRANCO) */
+    /* CONSOLE PRETO ABSOLUTO */
     .stCodeBlock, div[data-testid="stCodeBlock"], div[data-testid="stCodeBlock"] pre {{
         background-color: #000000 !important;
         border: 1px solid #00bcd4 !important;
     }}
-    code {{ color: #00ff88 !important; background-color: transparent !important; }}
+    code {{ color: #00ff88 !important; }}
 
-    /* CABEÇALHO E SLOGAN JUSTIFICADO À DIREITA */
-    .header-box {{ text-align: right; }}
-    .main-title {{ color: white; font-size: 36px; font-weight: 900; line-height: 1; margin: 0; }}
-    .sub-title {{ color: #00bcd4; font-size: 16px; font-weight: bold; margin: 0; }}
-    .slogan {{ color: rgba(255,255,255,0.6); font-size: 13px; font-style: italic; margin-top: 5px; }}
-
-    /* META E BOTAO */
-    .meta-text {{ color: #00bcd4; font-weight: 900; text-transform: uppercase; font-size: 14px; }}
+    /* BOTÕES CROW TECH */
     div.stButton > button {{
         background-color: #00bcd4 !important;
         color: black !important;
-        font-weight: bold !important;
+        font-weight: 800 !important;
         border: none !important;
         width: 100%;
+        text-transform: uppercase;
     }}
     
-    /* INPUTS DARK */
-    div[data-testid="stTextInput"] input, div[data-testid="stNumberInput"] input {{
-        background-color: rgba(0, 0, 0, 0.6) !important;
-        color: white !important;
-        border: 1px solid rgba(0, 188, 212, 0.5) !important;
-    }}
+    .header-right {{ text-align: right; }}
+    .slogan-text {{ color: rgba(255,255,255,0.6); font-size: 14px; font-style: italic; }}
     </style>
 """, unsafe_allow_html=True)
 
+# Gerenciamento de Estado
 if 'logado' not in st.session_state: st.session_state.logado = False
-if 'meta_val' not in st.session_state: st.session_state.meta_val = 500.0
+if 'meta_diaria' not in st.session_state: st.session_state.meta_diaria = 500.0
+if 'lucro_hoje' not in st.session_state: st.session_state.lucro_hoje = 425.10
 
-# --- ESTRUTURA DE NAVEGAÇÃO ---
+# --- LÓGICA DE NAVEGAÇÃO ---
 if not st.session_state.logado:
-    # TELA DE LOGIN (CARD DE VIDRO)
-    _, col_log, _ = st.columns([1, 1.2, 1])
-    with col_log:
-        st.markdown('<div class="login-card">', unsafe_allow_html=True)
-        st.image(f"data:image/png;base64,{logo_base64}", width=130)
-        st.markdown("<h2 style='margin-bottom:0;'>CROW TECH</h2><p style='color:#00bcd4; margin-top:0;'>PORTAL ELITE</p>", unsafe_allow_html=True)
-        u = st.text_input("USUÁRIO", placeholder="Username")
-        p = st.text_input("SENHA", type="password", placeholder="Password")
-        if st.button("ACESSAR"):
-            if u == "admin" and p == "crow123":
-                st.session_state.logado = True
-                st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+    # Interface de Login (Baseada no Login.txt)
+    _, col_cent, _ = st.columns([1, 1, 1])
+    with col_cent:
+        st.markdown(f'<div style="text-align: center; margin-bottom: 10px; margin-top: 50px;"><img src="data:image/png;base64,{logo_base64}" width="160"></div>', unsafe_allow_html=True)
+        with st.form("login_crow"):
+            st.markdown("<p style='text-align:center; color:white; font-size:10px; letter-spacing:2px;'>CROW TECH ELITE</p>", unsafe_allow_html=True)
+            u = st.text_input("USUÁRIO", placeholder="Username")
+            p = st.text_input("SENHA", type="password", placeholder="Password")
+            if st.form_submit_button("ACESSAR SISTEMA"):
+                if u == "admin" and p == "crow123":
+                    st.session_state.logado = True
+                    st.rerun()
+                else:
+                    st.error("Credenciais incorretas")
+
 else:
-    # --- HEADER ---
-    c_logo, c_text = st.columns([1, 3])
-    with c_logo: st.image(f"data:image/png;base64,{logo_base64}", width=100)
-    with c_text:
-        st.markdown(f"""
-            <div class="header-box">
-                <p class="main-title">CROW TECH</p>
-                <p class="sub-title">PORTAL ELITE</p>
-                <p class="slogan">Inteligência em cada movimento</p>
+    # --- DASHBOARD ELITE (Baseado no Dashboard.txt) ---
+    c1, c2 = st.columns([1, 3])
+    with c1: st.image(f"data:image/png;base64,{logo_base64}", width=100)
+    with c2:
+        st.markdown("""
+            <div class="header-right">
+                <h1 style="margin:0; color:white;">CROW TECH <span style="color:#00bcd4;">PORTAL ELITE</span></h1>
+                <p class="slogan-text">Inteligência em cada movimento</p>
             </div>
         """, unsafe_allow_html=True)
 
-    tab_dash, tab_conf, tab_api = st.tabs(["📊 DASHBOARD", "⚙️ CONFIGURAÇÃO", "🔐 API"])
+    tab1, tab2, tab3 = st.tabs(["📊 DASHBOARD", "⚙️ CONFIGURAÇÃO", "🔐 API CONNECTION"])
 
-    with tab_dash:
-        # Métricas
-        m1, m2, m3 = st.columns([1, 1, 2])
-        with m1: st.markdown('<div class="product-card"><small>BANCA USDT</small><br><span style="font-size:22px; font-weight:bold;">$ 10.250,00</span></div>', unsafe_allow_html=True)
-        with m2: st.markdown('<div class="product-card"><small>LUCRO HOJE</small><br><span style="font-size:22px; font-weight:bold; color:#00ff88;">+ $ 425,10</span></div>', unsafe_allow_html=True)
-        with m3:
+    with tab1:
+        col_m1, col_m2, col_m3 = st.columns([1, 1, 2])
+        with col_m1:
+            st.markdown('<div class="product-card"><small>BANCA ATUAL (USDT)</small><br><span style="font-size:22px; font-weight:bold;">$ 10.250,00</span></div>', unsafe_allow_html=True)
+        with col_m2:
+            st.markdown(f'<div class="product-card"><small>LUCRO HOJE</small><br><span style="color:#00ff88; font-size:22px; font-weight:bold;">+ $ {st.session_state.lucro_hoje}</span></div>', unsafe_allow_html=True)
+        with col_m3:
             st.markdown('<div class="product-card">', unsafe_allow_html=True)
-            st.markdown(f"<span class='meta-text'>Meta Diária: $ {st.session_state.meta_val}</span>", unsafe_allow_html=True)
-            st.progress(0.85)
-            st.markdown("<p style='text-align:right; font-size:11px; color:#00bcd4; margin:0;'>85% CONCLUÍDO</p>", unsafe_allow_html=True)
+            pct = min(st.session_state.lucro_hoje / st.session_state.meta_diaria, 1.0)
+            st.markdown(f"<small>PROGRESSO DA META DIÁRIA ($ {st.session_state.meta_diaria})</small>", unsafe_allow_html=True)
+            st.progress(pct)
+            st.markdown(f"<p style='text-align:right; font-size:11px; color:#00bcd4; margin:0;'>{pct*100:.1f}% CONCLUÍDO</p>", unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
         # Gráfico e Console
         st.markdown('<div class="product-card">', unsafe_allow_html=True)
         st.components.v1.html("""
-            <div style="height:400px;"><script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-            <script type="text/javascript">new TradingView.widget({"width": "100%", "height": 400, "symbol": "BINANCE:BTCUSDT", "theme": "dark", "style": "1"});</script></div>
-        """, height=400)
+            <div style="height:350px;"><script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+            <script type="text/javascript">new TradingView.widget({"width": "100%", "height": 350, "symbol": "BINANCE:BTCUSDT", "theme": "dark", "style": "1"});</script></div>
+        """, height=350)
         st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('<div class="product-card">', unsafe_allow_html=True)
-        st.code(f">>> [SISTEMA] Crow Tech Online\n>>> [ESTRATEGIA] EMA 20 Ativa\n>>> [{datetime.now().strftime('%H:%M:%S')}] Escaneando sinais...", language="bash")
-        c_b1, c_b2 = st.columns([4, 1])
-        with c_b1: st.button("🚀 INICIAR ENGINE")
-        with c_b2: 
+        st.code(f">>> [OK] API Conectada com sucesso.\n>>> [ESTRATÉGIA] EMA 20 Ativa\n>>> [{datetime.now().strftime('%H:%M:%S')}] Monitorando sinais...", language="bash")
+        
+        c_exec, c_out = st.columns([4, 1])
+        with c_exec:
+            if st.button("🚀 INICIAR ENGINE"): st.toast("Algoritmo Crow Tech iniciado!")
+        with c_out:
             if st.button("SAIR"):
                 st.session_state.logado = False
                 st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    with tab_conf:
+    with tab2:
         st.markdown('<div class="product-card">', unsafe_allow_html=True)
-        st.markdown("### 🛠️ Ajuste de Parâmetros")
+        st.markdown("### 🛠️ Ajuste Fino do Algoritmo")
         st.slider("Gatilho RSI", 10, 50, 30)
-        st.number_input("Stop Loss (%)", value=1.5)
-        st.session_state.meta_val = st.number_input("Meta de Lucro Diário ($)", value=st.session_state.meta_val)
-        st.text_input("Configuração Nativa", value="EMA 20", disabled=True)
+        st.number_input("Stop Loss (%)", value=1.50)
+        st.session_state.meta_diaria = st.number_input("Meta de Lucro Diário ($)", value=float(st.session_state.meta_diaria))
+        st.text_input("Média Móvel de Referência", value="EMA 20", disabled=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    with tab_api:
+    with tab3:
         st.markdown('<div class="product-card">', unsafe_allow_html=True)
-        st.markdown("### 🔐 Conexão API")
+        st.markdown("### 🔐 Credenciais de Operação")
         st.text_input("API KEY BINANCE", type="password")
-        st.text_input("SECRET KEY", type="password")
-        st.button("VINCULAR CONTA")
+        st.text_input("SECRET KEY BINANCE", type="password")
+        st.button("VINCULAR E TESTAR CONEXÃO")
         st.markdown('</div>', unsafe_allow_html=True)
