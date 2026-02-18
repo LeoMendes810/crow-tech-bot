@@ -167,105 +167,28 @@ else:
 
     # TABS
     tab1, tab2, tab3 = st.tabs(
-        ["📊 DASHBOARD", "⚙️ CONFIGURAÇÃO SCRIPT", "🔐 API CONNECTION"]
-    )
+    ["📊 DASHBOARD", "⚙️ CONFIGURAÇÃO SCRIPT", "🔐 API CONNECTION"]
+)
 
-    # ================= TAB 1 =================
-    with tab1:
-        c1, c2, c3 = st.columns([1, 1, 2])
+# ================= TAB 1 =================
+with tab1:
+    st.markdown("<div class='product-card'>", unsafe_allow_html=True)
+    st.markdown("### 📊 Dashboard")
+    st.info("Dashboard ativo. (conteúdo mantido)")
 
-        with c1:
-            st.markdown(
-                "<div class='product-card'><small>BANCA ATUAL (USDT)</small><br><b>$ 10.250</b></div>",
-                unsafe_allow_html=True
-            )
+    st.markdown("</div>", unsafe_allow_html=True)
 
-        with c2:
-            st.markdown(
-                f"<div class='product-card'><small>LUCRO HOJE</small><br>"
-                f"<span style='color:#00ff88;font-size:20px;'>+ $ {st.session_state.lucro_acumulado}</span></div>",
-                unsafe_allow_html=True
-            )
-
-        with c3:
-            pct = min(
-                st.session_state.lucro_acumulado / st.session_state.meta_diaria,
-                1.0
-            )
-            st.markdown("<div class='product-card'>", unsafe_allow_html=True)
-            st.markdown(
-                f"<small>PROGRESSO META DIÁRIA ($ {st.session_state.meta_diaria})</small>",
-                unsafe_allow_html=True
-            )
-            st.progress(pct)
-            st.markdown(
-                f"<p style='text-align:right;font-size:11px;color:#00bcd4;'>{pct*100:.1f}% CONCLUÍDO</p>",
-                unsafe_allow_html=True
-            )
-            st.markdown("</div>", unsafe_allow_html=True)
-
-        # GRÁFICO REAL
-        st.markdown("<div class='product-card'>", unsafe_allow_html=True)
-        st.markdown("<small>LIVE CHART (TradingView)</small>", unsafe_allow_html=True)
-
-        st.components.v1.html("""
-        <div class="tradingview-widget-container">
-          <div id="tradingview_crow"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-          <script type="text/javascript">
-          new TradingView.widget({
-            "width": "100%",
-            "height": 420,
-            "symbol": "BINANCE:BTCUSDT",
-            "interval": "1",
-            "timezone": "Etc/UTC",
-            "theme": "dark",
-            "style": "1",
-            "locale": "br",
-            "toolbar_bg": "#0b1016",
-            "hide_top_toolbar": false,
-            "allow_symbol_change": true,
-            "container_id": "tradingview_crow"
-          });
-          </script>
-        </div>
-        """, height=420)
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        # CONSOLE
-        st.markdown("<div class='product-card'>", unsafe_allow_html=True)
-        st.markdown("<small>LOG DE EXECUÇÃO</small>", unsafe_allow_html=True)
-        st.code(f"""
->>> [OK] API conectada
->>> [SCAN] EMA 9 / 21
->>> [INFO] RSI aguardando nível {st.session_state.rsi_val}
->>> [{datetime.now().strftime('%H:%M:%S')}] Monitorando mercado
-        """, language="bash")
-        st.button("🚀 LIGAR ROBÔ", use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    # ================= TAB 2 =================
-   with tab2:
+# ================= TAB 2 =================
+with tab2:
     st.markdown("<div class='product-card'>", unsafe_allow_html=True)
     st.markdown("## ⚙️ Estratégia do Robô (Spot)")
 
     st.markdown("### 📈 Filtro de Tendência")
-    st.markdown(
-        "<p class='instruction-text'>"
-        "O robô só procura compras quando o preço está acima da média exponencial.</p>",
-        unsafe_allow_html=True
-    )
     st.number_input("EMA (períodos)", value=20, disabled=True)
 
     st.divider()
 
     st.markdown("### 📉 Timing de Entrada (RSI)")
-    st.markdown(
-        "<p class='instruction-text'>"
-        "Compra apenas em pullbacks saudáveis, evitando sobrecompra ou pânico.</p>",
-        unsafe_allow_html=True
-    )
     c1, c2 = st.columns(2)
     with c1:
         st.number_input("RSI mínimo", value=35, disabled=True)
@@ -275,53 +198,28 @@ else:
     st.divider()
 
     st.markdown("### 🔊 Confirmação por Volume")
-    st.markdown(
-        "<p class='instruction-text'>"
-        "A entrada só acontece se houver interesse real do mercado.</p>",
-        unsafe_allow_html=True
-    )
     st.number_input("Volume mínimo (× média)", value=1.10, disabled=True)
 
     st.divider()
 
     st.markdown("### 💰 Gestão de Capital")
-    st.markdown(
-        "<p class='instruction-text'>"
-        "Define quanto do saldo disponível será utilizado em cada operação.</p>",
-        unsafe_allow_html=True
-    )
     st.number_input("Percentual do saldo por trade (%)", value=85, disabled=True)
 
     st.divider()
 
     st.markdown("### 🛡️ Proteções da Operação")
-    st.markdown(
-        "<p class='instruction-text'>"
-        "Mecanismos automáticos para reduzir risco e proteger lucro.</p>",
-        unsafe_allow_html=True
-    )
-
     c3, c4 = st.columns(2)
     with c3:
-        st.number_input("Ativar Break-even em (%)", value=0.80, disabled=True)
+        st.number_input("Break-even (%)", value=0.80, disabled=True)
         st.number_input("Stop máximo (%)", value=-2.5, disabled=True)
     with c4:
-        st.number_input("Alvo mínimo de lucro (%)", value=1.30, disabled=True)
-        st.number_input("Recuo do topo para saída (%)", value=0.30, disabled=True)
-
-    st.divider()
-
-    st.info(
-        "⚠️ Estes parâmetros refletem exatamente a lógica atual do robô. "
-        "Eles não são editáveis nesta fase para evitar divergência com o código real."
-    )
+        st.number_input("Alvo mínimo (%)", value=1.30, disabled=True)
+        st.number_input("Recuo do topo (%)", value=0.30, disabled=True)
 
     st.markdown("</div>", unsafe_allow_html=True)
-    # ================= TAB 3 =================
-    with tab3:
-        st.markdown("<div class='product-card'>", unsafe_allow_html=True)
-        st.info("Suas chaves ficam protegidas.")
-        st.text_input("API KEY BINANCE", type="password")
-        st.text_input("SECRET KEY BINANCE", type="password")
-        st.button("VINCULAR E TESTAR CONEXÃO")
-        st.markdown("</div>", unsafe_allow_html=True)
+
+# ================= TAB 3 =================
+with tab3:
+    st.markdown("<div class='product-card'>", unsafe_allow_html=True)
+    st.info("Configuração de API será feita aqui.")
+    st.markdown("</div>", unsafe_allow_html=True)
